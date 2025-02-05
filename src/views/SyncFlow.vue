@@ -2,7 +2,7 @@
   <div class="syncflow_container">
     <div class="title-part">
       <span class="title">SyncFlow</span>
-      <a-button class="refresh_button" type="link">
+      <a-button class="refresh_button" type="link" @click="handleSyncFlowRefresh">
         <RetweetOutlined/>
       </a-button>
     </div>
@@ -78,31 +78,65 @@
         <RetweetOutlined/>
         Rescan
       </a-button>
-      <a-button class="add_button">
+      <a-button class="add_button" @click="handleSyncFlowAdd">
         <PlusOutlined/>
         Add
       </a-button>
+      <!-- Use the ModalComponent -->
+      <sync-flow-modal ref="childModalRef" @close="handleModalClose"/>
     </div>
   </div>
 </template>
 
-<script setup>
-import {getSyncFlow} from '../api/api.js';
+<script setup lang="ts">
+import {getSyncFlow} from '../api/api';
+import {SyncFlowInfo, CreateSyncFlowRequest, SyncFlowResponse} from "../api/SyncFlowDataType";
+import SyncFlowModal from "./SyncFlowModal.vue";
 import {EditOutlined, FolderOutlined, PauseOutlined, PlusOutlined, RetweetOutlined} from '@ant-design/icons-vue';
-import {onMounted, ref} from 'vue';
-
+import {onMounted, Ref, ref} from 'vue';
 
 // 折叠面板选中的 key
-const activeKey = ref([]);
-// 获取 syncFlowInfoList 并渲染
-let syncFlowInfoList = ref([]);
-onMounted(async () => {
-  await getSyncFlow()
-      .then(res => {
-        syncFlowInfoList.value = res.syncFlowInfoList;
-      })
-      .catch(err => console.error(err));
+const activeKey:Ref<string[]> = ref([]);
+// 定义 syncFlowInfoList
+let syncFlowInfoList:Ref<SyncFlowInfo[]> = ref([]);
+// 请求 syncflow 数据的函数
+const getSyncFlowInfoList = async () => {
+  const syncFlowResponse:SyncFlowResponse = await getSyncFlow();
+  if (syncFlowResponse === null) {
+    console.error('SyncFlow not found!');
+    syncFlowInfoList.value = [];
+    return;
+  }
+  if (syncFlowResponse.code === 500) {
+    console.error('SyncFlow failed. ' + syncFlowResponse.message);
+    syncFlowInfoList.value = [];
+    return;
+  }
+  syncFlowInfoList.value = syncFlowResponse.syncFlowInfoList;
+}
+// 页面加载的时候获取 syncflow 数据渲染
+onMounted(() => {
+  getSyncFlowInfoList();
 })
+// sync flow 菜单刷新按钮事件, 触发 api 查询, 刷新页面数据
+const handleSyncFlowRefresh = () => {
+  getSyncFlowInfoList();
+};
+// 定义 syncFlowModal 的 ref, 用于访问其方法和变量
+const childModalRef:Ref<InstanceType<typeof SyncFlowModal | null>> = ref(null);
+// State to store form data
+let formData:Ref<CreateSyncFlowRequest> = ref(null);
+// sync flow 菜单添加按钮事件, 展示 modal
+const handleSyncFlowAdd = () => {
+  console.log(childModalRef.value);
+  if (childModalRef.value) {
+    childModalRef.value.showModal();
+  }
+}
+// 当 modal 正确填写并关闭时, 获取数据并发送 api
+const handleModalClose = (e, data:CreateSyncFlowRequest) => {
+  console.log(data);
+}
 </script>
 
 <style scoped>

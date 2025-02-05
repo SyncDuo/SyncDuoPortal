@@ -24,18 +24,18 @@
   </div>
 </template>
 
-<script setup >
+<script setup lang="ts">
 import {FileSyncOutlined, SettingOutlined, DownOutlined} from '@ant-design/icons-vue';
-import { getHostName} from "../api/api.js";
-import {onMounted, ref} from "vue";
+import { getHostName } from "../api/api";
+import {onMounted, Ref, ref} from "vue";
 
 
 // 获取 hostName 并渲染
-let hostName = ref('');
+let hostName:Ref<string> = ref('');
 onMounted(async () => {
       await getHostName()
-          .then(res => {
-            hostName.value = res.hostName
+          .then(fileSystemResponse => {
+            hostName.value = fileSystemResponse.hostName
           })
           .catch(err => console.log(err));
     }
