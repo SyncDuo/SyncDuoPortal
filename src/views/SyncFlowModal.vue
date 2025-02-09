@@ -11,11 +11,11 @@
       <a-tab-pane key="basic" tab="Basic">
         <a-form class="input-group" layout="vertical">
           <a-form-item label="Source Folder" class="form-item">
-            <search-bar v-model:value="form.sourceFolderFullPath" />
+            <search-bar v-model="form.sourceFolderFullPath" />
           </a-form-item>
           <a-form-item label="Dest Folder" class="form-item">
             <a-input-group compact>
-              <search-bar v-model:value="form.destParentFolderFullPath" style="width: 80%"/>
+              <search-bar v-model="form.destParentFolderFullPath" style="width: 80%"/>
               <a-input v-model:value="form.destFolderName" style="width: 20%" />
             </a-input-group>
           </a-form-item>
@@ -83,9 +83,11 @@ const createSyncFlow = async (payload:CreateSyncFlowRequest) => {
 }
 // modal 正确关闭的事件逻辑
 const handleOk = () => {
+  console.log(form.value)
   createSyncFlow(form.value)
   isModalVisible.value = false;
   form.value = initCreateSyncFlowRequest();
+  emit('syncFlowCreated');
 };
 // modal 取消/关闭事件的逻辑
 const handleCancel = () => {

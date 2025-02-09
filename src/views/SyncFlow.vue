@@ -78,12 +78,12 @@
         <RetweetOutlined/>
         Rescan
       </a-button>
-      <a-button class="add_button" @click="handleSyncFlowAdd">
+      <a-button class="add_button" @click="handleSyncFlowAddButton">
         <PlusOutlined/>
         Add
       </a-button>
       <!-- Use the ModalComponent -->
-      <sync-flow-modal ref="childModalRef" @close="handleModalClose"/>
+      <sync-flow-modal ref="childModalRef" @syncFlowCreated="handleSyncFlowAdd"/>
     </div>
   </div>
 </template>
@@ -127,15 +127,13 @@ const childModalRef:Ref<InstanceType<typeof SyncFlowModal | null>> = ref(null);
 // State to store form data
 let formData:Ref<CreateSyncFlowRequest> = ref(null);
 // sync flow 菜单添加按钮事件, 展示 modal
-const handleSyncFlowAdd = () => {
-  console.log(childModalRef.value);
+const handleSyncFlowAddButton = () => {
   if (childModalRef.value) {
     childModalRef.value.showModal();
   }
 }
-// 当 modal 正确填写并关闭时, 获取数据并发送 api
-const handleModalClose = (e, data:CreateSyncFlowRequest) => {
-  console.log(data);
+const handleSyncFlowAdd = () => {
+  getSyncFlowInfoList();
 }
 </script>
 

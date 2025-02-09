@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import {Ref, ref, watch} from 'vue';
+import {Ref, ref} from 'vue';
 import {getFolderName} from "../api/api";
 import {FileSystemResponse} from "../api/FileSystemDataType";
 
@@ -40,23 +40,10 @@ const searchFolder = async (searchText: string) => {
   }
   options.value = result;
 };
-// 定义暴露的 prop, 用于双向绑定
-const props = defineProps({
-  value: String
-});
-// 定义事件, 用于双向绑定
-const emit = defineEmits<{
-  (event: 'update:value', value: string): void;
-}>();
 // 定义用户的输入
-const input:Ref<string> = ref(props.value);
-// 定义 watch, 用于双向绑定
-watch(input, (newValue: string) => {
-  emit("update:value", newValue);
-})
+const input = defineModel();
 // 根据用户的输入搜索文件夹, 并改变联想的内容
 const onSearch = (searchText: string) => {
-  console.log('searchText');
   if (!searchText) {
     options.value = [];
   } else {
