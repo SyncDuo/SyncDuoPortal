@@ -1,10 +1,13 @@
 import axiosInstance from "../util/http.js";
 import {CreateSyncFlowRequest, SyncFlowResponse} from "./SyncFlowDataType"
 import {FileSystemResponse} from "./FileSystemDataType"
+import {SystemConfigResponse, UpdateSystemConfigRequest} from "./SystemConfigDataType";
 
 const syncFlowUrl : string = "/sync-flow";
 
 const fileSystemUrl : string = "/filesystem";
+
+const systemConfigUrl : string = "/system-config";
 
 export async function postSyncFlow(payload:CreateSyncFlowRequest): Promise<SyncFlowResponse> {
     const response =
@@ -30,5 +33,20 @@ export async function getFolderName(path:string):Promise<FileSystemResponse> {
                 path: path,
             }
         });
+    return response.data;
+}
+
+export async function getSystemConfig():Promise<SystemConfigResponse> {
+    const response = await axiosInstance.get<SystemConfigResponse>(
+        systemConfigUrl + "/get-system-config"
+    );
+    return response.data;
+}
+
+export async function postSystemConfig(payload:UpdateSystemConfigRequest):Promise<SystemConfigResponse> {
+    const response = await axiosInstance.post<SystemConfigResponse>(
+        systemConfigUrl + "/update-system-config",
+        payload
+    );
     return response.data;
 }

@@ -42,10 +42,10 @@
 </template>
 
 <script setup lang="ts">
-import {postSyncFlow} from '../api/api'
+import {postSyncFlow} from '../../api/api'
 import {ref, Ref} from 'vue';
-import {CreateSyncFlowRequest, SyncFlowResponse} from "../api/SyncFlowDataType";
-import SearchBar from "../components/SearchBar.vue";
+import {CreateSyncFlowRequest, SyncFlowResponse} from "../../api/SyncFlowDataType";
+import SearchBar from "../../components/SearchBar.vue";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);

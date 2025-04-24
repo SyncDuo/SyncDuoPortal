@@ -26,9 +26,9 @@
 </template>
 
 <script setup>
-import Header from './Header.vue';
-import Syncflow from './SyncFlow.vue';
-import System from './System.vue';
+import Header from './header/Header.vue';
+import Syncflow from './syncflow/SyncFlow.vue';
+import System from './system/System.vue';
 </script>
 
 <style scoped>

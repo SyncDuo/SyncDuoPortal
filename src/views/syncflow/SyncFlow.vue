@@ -89,8 +89,8 @@
 </template>
 
 <script setup lang="ts">
-import {getSyncFlow} from '../api/api';
-import {SyncFlowInfo, CreateSyncFlowRequest, SyncFlowResponse} from "../api/SyncFlowDataType";
+import {getSyncFlow} from '../../api/api';
+import {SyncFlowInfo, CreateSyncFlowRequest, SyncFlowResponse} from "../../api/SyncFlowDataType";
 import SyncFlowModal from "./SyncFlowModal.vue";
 import {EditOutlined, FolderOutlined, PauseOutlined, PlusOutlined, RetweetOutlined} from '@ant-design/icons-vue';
 import {onMounted, Ref, ref} from 'vue';
