@@ -37,9 +37,14 @@
             {{ syncFlowInfo.destFolderPath }}
           </template>
         </a-card>
+        <a-card size="small" style="text-align: left;" title="SyncFlowType">
+          <template #extra>
+            {{ syncFlowInfo.syncFlowType }}
+          </template>
+        </a-card>
         <a-card size="small" style="text-align: left;" title="SyncSetting">
           <template #extra>
-            {{ syncFlowInfo.syncSettings }}
+            {{ syncFlowInfo.syncMode }}
           </template>
         </a-card>
         <a-card size="small" style="text-align: left;" title="Ignore">
@@ -117,7 +122,7 @@ const getSyncFlowInfoList = async () => {
 // 页面加载的时候获取 syncflow 数据渲染
 onMounted(() => {
   getSyncFlowInfoList();
-})
+});
 // sync flow 菜单刷新按钮事件, 触发 api 查询, 刷新页面数据
 const handleSyncFlowRefresh = () => {
   getSyncFlowInfoList();

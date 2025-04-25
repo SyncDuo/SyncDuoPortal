@@ -2,15 +2,15 @@ export interface CreateSyncFlowRequest {
 
     sourceFolderFullPath: string;
 
-    destParentFolderFullPath: string;
-
-    destFolderName: string | null;
+    destFolderFullPath: string;
 
     filterCriteria: string;
 
-    flattenFolder: boolean;
+    syncMode: string;
 
     syncFlowName: string;
+
+    syncFlowType: string;
 }
 
 export interface SyncFlowResponse {
@@ -32,9 +32,11 @@ export interface SyncFlowInfo {
 
     destFolderPath : string;
 
-    syncSettings: string;
+    syncMode: string;
 
     ignorePatten: string;
+
+    syncFlowType: string;
 
     destFolderStats: FolderStats | null;
 

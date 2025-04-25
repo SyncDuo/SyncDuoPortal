@@ -20,8 +20,8 @@
 </template>
 
 <script setup lang="ts">
-import {getSystemConfig, postSystemConfig} from '../../api/api'
-import {onMounted, ref, Ref} from 'vue';
+import {getSystemConfig, postSystemConfig} from '../../api/api';
+import {ref, Ref, watch} from 'vue';
 import SearchBar from "../../components/SearchBar.vue";
 import {SystemConfig, UpdateSystemConfigRequest} from "../../api/SystemConfigDataType";
 
@@ -54,7 +54,7 @@ const initSystemConfig = async () => {
       form.value = systemConfigResponse.systemConfigMap;
     }
   }
-}
+};
 // systemConfig 更新完成后, 发送的事件
 const emit = defineEmits<{
   systemConfigUpdated: [];
@@ -71,7 +71,7 @@ const updateSystemConfig = async (payload:UpdateSystemConfigRequest) => {
   if (systemConfigResponse.code === 200) {
     emit('systemConfigUpdated');
   }
-}
+};
 // modal 正确关闭的事件逻辑
 const handleOk = () => {
   console.log(form.value)
@@ -88,16 +88,18 @@ const handleCancel = () => {
   initSystemConfig();
 };
 // 页面加载的时候请求一次 systemConfig, 初始化数据
-onMounted(() => {
-  initSystemConfig();
-})
+watch(isModalVisible, (newVal) => {
+  if (newVal === true) {
+    initSystemConfig();
+  }
+});
 // 定义需要暴露的方法
 defineExpose({
   // 控制 modal 显示隐藏的方法
   showModal: () => {
     isModalVisible.value = true;
   }
-})
+});
 </script>
 
 <style scoped>
