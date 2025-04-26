@@ -106,7 +106,7 @@ const createSyncFlow = async (payload:CreateSyncFlowRequest) => {
 const handleOk = () => {
   console.log(form.value)
   // 拼接 destFolderFullPath
-  form.value.destFolderFullPath = destParentFolderFullPath + "/" + destFolderName;
+  form.value.destFolderFullPath = destParentFolderFullPath.value + "/" + destFolderName.value;
   // 发起创建 syncFlow 请求
   createSyncFlow(form.value)
   isModalVisible.value = false;
