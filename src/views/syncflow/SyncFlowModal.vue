@@ -74,6 +74,9 @@ const destFolderName:Ref<string> = ref("");
 const inputDisabled:Ref<boolean> = ref(true);
 // CreateSyncFlowRequest 初始化函数
 const initCreateSyncFlowRequest = ():CreateSyncFlowRequest => {
+  // destParentFolderFullPath 和 destFolderName 也需要清空
+  destParentFolderFullPath.value = "";
+  destFolderName.value = "";
   return {
     sourceFolderFullPath: "",
     destFolderFullPath: "",
