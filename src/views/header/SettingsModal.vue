@@ -13,6 +13,15 @@
           <a-form-item label="Sync Storage Path" class="form-item">
             <search-bar v-model="form.syncStoragePath" />
           </a-form-item>
+          <a-form-item label="Backup Storage Path" class="form-item">
+            <search-bar v-model="form.backupStoragePath" />
+          </a-form-item>
+          <a-form-item label="Handler Min Threads" class="form-item">
+            <a-input v-model="form.handlerMinThreads" />
+          </a-form-item>
+          <a-form-item label="Handler Max Threads" class="form-item">
+            <a-input v-model="form.handlerMaxThreads" />
+          </a-form-item>
         </a-form>
       </a-tab-pane>
     </a-tabs>
@@ -29,11 +38,18 @@ import {SystemConfig, UpdateSystemConfigRequest} from "../../api/SystemConfigDat
 const isModalVisible:Ref<boolean> = ref(false);
 // 活动 tab 页的变量
 const activeTab:Ref<string> = ref("general");
+// 定义 systemConfig 初始化函数
+const getEmptySystemConfig = ():SystemConfig => {
+  return {
+    systemConfigId: "",
+    syncStoragePath: "",
+    backupStoragePath: "",
+    handlerMinThreads: 5,
+    handlerMaxThreads: 5,
+  }
+};
 // 定义 systemConfig
-const form:Ref<SystemConfig> = ref<SystemConfig>({
-  systemConfigId: "",
-  syncStoragePath: ""
-});
+const form:Ref<SystemConfig> = ref<SystemConfig>(getEmptySystemConfig());
 // systemConfig 初始化函数
 const initSystemConfig = async () => {
   const systemConfigResponse = await getSystemConfig();
@@ -46,10 +62,7 @@ const initSystemConfig = async () => {
   if (systemConfigResponse.code === 200) {
     // 第一次登录系统,没有设置参数,所以 form 需要设置为空对象, 而不是 null
     if (systemConfigResponse.systemConfigMap === null) {
-      form.value = {
-        systemConfigId: "",
-        syncStoragePath: ""
-      }
+      form.value = getEmptySystemConfig();
     } else {
       form.value = systemConfigResponse.systemConfigMap;
     }

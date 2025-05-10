@@ -96,6 +96,6 @@ const handleSettingsButtonClick = e => {
 }
 
 .dropdown_section {
-  margin-left: 550px;
+  margin-left: 750px;
 }
 </style>

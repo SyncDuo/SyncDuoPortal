@@ -2,12 +2,15 @@ import axiosInstance from "../util/http.js";
 import {CreateSyncFlowRequest, SyncFlowResponse} from "./SyncFlowDataType"
 import {FileSystemResponse} from "./FileSystemDataType"
 import {SystemConfigResponse, UpdateSystemConfigRequest} from "./SystemConfigDataType";
+import {SystemInfoResponse} from "./SystemInfoDataType";
 
 const syncFlowUrl : string = "/sync-flow";
 
 const fileSystemUrl : string = "/filesystem";
 
 const systemConfigUrl : string = "/system-config";
+
+const systemInfoUrl : string = "/system-info";
 
 export async function postSyncFlow(payload:CreateSyncFlowRequest): Promise<SyncFlowResponse> {
     const response =
@@ -47,6 +50,13 @@ export async function postSystemConfig(payload:UpdateSystemConfigRequest):Promis
     const response = await axiosInstance.post<SystemConfigResponse>(
         systemConfigUrl + "/update-system-config",
         payload
+    );
+    return response.data;
+}
+
+export async function getSystemInfo():Promise<SystemInfoResponse> {
+    const response = await axiosInstance.get<SystemInfoResponse>(
+        systemInfoUrl + "/get-system-info"
     );
     return response.data;
 }

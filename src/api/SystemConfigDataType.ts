@@ -12,5 +12,12 @@ export interface UpdateSystemConfigRequest {
 
 export interface SystemConfig {
     systemConfigId: string;
+
     syncStoragePath: string;
+
+    backupStoragePath: string;
+
+    handlerMinThreads: number;
+
+    handlerMaxThreads: number;
 }

@@ -1,5 +1,6 @@
 <template>
   <div class="syncflow_container">
+
     <div class="title-part">
       <span class="title">SyncFlow</span>
       <a-button class="refresh_button" type="link" @click="handleSyncFlowRefresh">
@@ -47,6 +48,13 @@
             {{ syncFlowInfo.syncMode }}
           </template>
         </a-card>
+        <a-card size="small" style="text-align: left;" title="FolderStats">
+          <template #extra>
+            <FileOutlined /> {{ syncFlowInfo.destFolderStats.fileCount}}
+            <FolderOutlined /> {{ syncFlowInfo.destFolderStats.folderCount }}
+            <HddOutlined /> {{ syncFlowInfo.destFolderStats.space}} MB
+          </template>
+        </a-card>
         <a-card size="small" style="text-align: left;" title="Ignore">
           <template #extra>
             {{ syncFlowInfo.ignorePatten }}
@@ -57,6 +65,7 @@
             {{ syncFlowInfo.lastSyncTimeStamp }}
           </template>
         </a-card>
+
         <div class="sync_flow_info_buttons">
           <a-button class="pause_button">
             <PauseOutlined/>
@@ -97,7 +106,8 @@
 import {getSyncFlow} from '../../api/api';
 import {SyncFlowInfo, CreateSyncFlowRequest, SyncFlowResponse} from "../../api/SyncFlowDataType";
 import SyncFlowModal from "./SyncFlowModal.vue";
-import {EditOutlined, FolderOutlined, PauseOutlined, PlusOutlined, RetweetOutlined} from '@ant-design/icons-vue';
+import {EditOutlined, FolderOutlined, PauseOutlined, PlusOutlined, RetweetOutlined, FileOutlined,
+HddOutlined} from '@ant-design/icons-vue';
 import {onMounted, Ref, ref} from 'vue';
 
 // 折叠面板选中的 key
@@ -129,8 +139,6 @@ const handleSyncFlowRefresh = () => {
 };
 // 定义 syncFlowModal 的 ref, 用于访问其方法和变量
 const childModalRef:Ref<InstanceType<typeof SyncFlowModal | null>> = ref(null);
-// State to store form data
-let formData:Ref<CreateSyncFlowRequest> = ref(null);
 // sync flow 菜单添加按钮事件, 展示 modal
 const handleSyncFlowAddButton = () => {
   if (childModalRef.value) {
@@ -165,7 +173,7 @@ const handleSyncFlowAdd = () => {
 }
 
 .collapse {
-  width: 800px;
+  width: 580px;
 }
 
 .custom-panel-text {

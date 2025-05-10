@@ -51,5 +51,5 @@ export interface FolderStats {
 
     folderCount: string;
 
-    space: string;
+    space: string; // MB
 }
