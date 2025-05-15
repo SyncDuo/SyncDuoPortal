@@ -53,3 +53,11 @@ export interface FolderStats {
 
     space: string; // MB
 }
+
+export interface RescanSyncFlowRequest {
+    syncFlowId: string;
+}
+
+export interface PauseSyncFlowRequest {
+    syncFlowId: string;
+}

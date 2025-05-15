@@ -1,5 +1,5 @@
 import axiosInstance from "../util/http.js";
-import {CreateSyncFlowRequest, SyncFlowResponse} from "./SyncFlowDataType"
+import {CreateSyncFlowRequest, PauseSyncFlowRequest, RescanSyncFlowRequest, SyncFlowResponse} from "./SyncFlowDataType"
 import {FileSystemResponse} from "./FileSystemDataType"
 import {SystemConfigResponse, UpdateSystemConfigRequest} from "./SystemConfigDataType";
 import {SystemInfoResponse} from "./SystemInfoDataType";
@@ -20,6 +20,26 @@ export async function postSyncFlow(payload:CreateSyncFlowRequest): Promise<SyncF
 
 export async function getSyncFlow():Promise<SyncFlowResponse> {
     const response = await axiosInstance.get<SyncFlowResponse>(syncFlowUrl + "/get-sync-flow");
+    return response.data;
+}
+
+export async function rescanSyncFlow(payload:RescanSyncFlowRequest):Promise<SyncFlowResponse> {
+    const response = await axiosInstance.post<SyncFlowResponse>(syncFlowUrl + "/rescan-sync-flow", payload);
+    return response.data;
+}
+
+export async function rescanAllSyncFlow():Promise<SyncFlowResponse> {
+    const response = await axiosInstance.post<SyncFlowResponse>(syncFlowUrl + "/rescan-all-sync-flow");
+    return response.data;
+}
+
+export async function pauseSyncFlow(payload:PauseSyncFlowRequest):Promise<SyncFlowResponse> {
+    const response = await axiosInstance.post<SyncFlowResponse>(syncFlowUrl + "/pause-sync-flow", payload);
+    return response.data;
+}
+
+export async function pauseAllSyncFlow():Promise<SyncFlowResponse> {
+    const response = await axiosInstance.post<SyncFlowResponse>(syncFlowUrl + "/pause-all-sync-flow");
     return response.data;
 }
 

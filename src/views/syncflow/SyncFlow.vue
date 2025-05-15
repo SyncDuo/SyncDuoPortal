@@ -67,11 +67,11 @@
         </a-card>
 
         <div class="sync_flow_info_buttons">
-          <a-button class="pause_button">
+          <a-button class="pause_button" @click="handlePauseSyncFlow(syncFlowInfo.syncFlowId)">
             <PauseOutlined/>
             Pause
           </a-button>
-          <a-button class="rescan_button">
+          <a-button class="rescan_button" @click="handleRescanSyncflow(syncFlowInfo.syncFlowId)">
             <RetweetOutlined/>
             Rescan
           </a-button>
@@ -84,11 +84,11 @@
     </a-collapse>
 
     <div class="sync_flow_buttons">
-      <a-button class="pause_button">
+      <a-button class="pause_button" @click="handlePauseAllSyncFlow">
         <PauseOutlined/>
         Pause
       </a-button>
-      <a-button class="rescan_button">
+      <a-button class="rescan_button" @click="handleRescanAllSyncFlow">
         <RetweetOutlined/>
         Rescan
       </a-button>
@@ -103,8 +103,8 @@
 </template>
 
 <script setup lang="ts">
-import {getSyncFlow} from '../../api/api';
-import {SyncFlowInfo, CreateSyncFlowRequest, SyncFlowResponse} from "../../api/SyncFlowDataType";
+import {getSyncFlow, pauseSyncFlow, rescanSyncFlow, pauseAllSyncFlow, rescanAllSyncFlow} from '../../api/api';
+import {SyncFlowInfo, SyncFlowResponse, RescanSyncFlowRequest, PauseSyncFlowRequest} from "../../api/SyncFlowDataType";
 import SyncFlowModal from "./SyncFlowModal.vue";
 import {EditOutlined, FolderOutlined, PauseOutlined, PlusOutlined, RetweetOutlined, FileOutlined,
 HddOutlined} from '@ant-design/icons-vue';
@@ -147,6 +147,24 @@ const handleSyncFlowAddButton = () => {
 }
 const handleSyncFlowAdd = () => {
   getSyncFlowInfoList();
+}
+const handleRescanAllSyncFlow = () => {
+  rescanAllSyncFlow();
+}
+const handlePauseAllSyncFlow = () => {
+  pauseAllSyncFlow();
+}
+const handleRescanSyncflow = (syncFlowId:string) => {
+  const rescanSyncFlowRequest:RescanSyncFlowRequest = {
+    syncFlowId: syncFlowId
+  }
+  rescanSyncFlow(rescanSyncFlowRequest);
+}
+const handlePauseSyncFlow = (syncFlowId:string) => {
+  const pauseSyncFlowRequest:PauseSyncFlowRequest = {
+    syncFlowId: syncFlowId
+  }
+  pauseSyncFlow(pauseSyncFlowRequest);
 }
 </script>
 
