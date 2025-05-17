@@ -18,7 +18,7 @@
           :name="index.toString()"
       >
         <template #header>
-          <div class="custom-panel-text">
+          <div class="custom-panel-text" style="font-size: 15px">
             <span>{{ syncFlowInfo.syncFlowName }}</span>
             <span class="status">{{ syncFlowInfo.syncStatus }}</span>
           </div>
@@ -30,12 +30,16 @@
         </a-card>
         <a-card size="small" style="text-align: left;" title="SourcePath">
           <template #extra>
-            {{ syncFlowInfo.sourceFolderPath }}
+            <a-popover :content="syncFlowInfo.sourceFolderPath" placement="topRight">
+            <span class="custom-card-text">{{ syncFlowInfo.sourceFolderPath }}</span>
+            </a-popover>
           </template>
         </a-card>
         <a-card size="small" style="text-align: left;" title="DestPath">
           <template #extra>
-            {{ syncFlowInfo.destFolderPath }}
+            <a-popover :content="syncFlowInfo.destFolderPath" placement="topRight">
+              <span class="custom-card-text">{{ syncFlowInfo.destFolderPath }}</span>
+            </a-popover>
           </template>
         </a-card>
         <a-card size="small" style="text-align: left;" title="SyncFlowType">
@@ -48,7 +52,7 @@
             {{ syncFlowInfo.syncMode }}
           </template>
         </a-card>
-        <a-card size="small" style="text-align: left;" title="FolderStats">
+        <a-card size="small" style="text-align: left;" title="DestFolderStats">
           <template #extra>
             <FileOutlined /> {{ syncFlowInfo.destFolderStats.fileCount}}
             <FolderOutlined /> {{ syncFlowInfo.destFolderStats.folderCount }}
@@ -150,21 +154,25 @@ const handleSyncFlowAdd = () => {
 }
 const handleRescanAllSyncFlow = () => {
   rescanAllSyncFlow();
+  handleSyncFlowRefresh();
 }
 const handlePauseAllSyncFlow = () => {
   pauseAllSyncFlow();
+  handleSyncFlowRefresh();
 }
 const handleRescanSyncflow = (syncFlowId:string) => {
   const rescanSyncFlowRequest:RescanSyncFlowRequest = {
     syncFlowId: syncFlowId
   }
   rescanSyncFlow(rescanSyncFlowRequest);
+  handleSyncFlowRefresh();
 }
 const handlePauseSyncFlow = (syncFlowId:string) => {
   const pauseSyncFlowRequest:PauseSyncFlowRequest = {
     syncFlowId: syncFlowId
   }
   pauseSyncFlow(pauseSyncFlowRequest);
+  handleSyncFlowRefresh();
 }
 </script>
 
@@ -210,5 +218,15 @@ const handlePauseSyncFlow = (syncFlowId:string) => {
   justify-content: flex-end; /* Align items to the right */
   gap: 8px; /* Add space between buttons */
   margin-top: 16px; /* Add space above buttons */
+}
+
+.custom-card-text {
+  max-width: 300px; /* Adjust based on layout */
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
 }
 </style>
