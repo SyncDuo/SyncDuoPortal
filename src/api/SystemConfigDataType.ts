@@ -16,8 +16,4 @@ export interface SystemConfig {
     syncStoragePath: string;
 
     backupStoragePath: string;
-
-    handlerMinThreads: number;
-
-    handlerMaxThreads: number;
 }

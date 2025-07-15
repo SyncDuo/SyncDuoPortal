@@ -6,11 +6,7 @@ export interface CreateSyncFlowRequest {
 
     filterCriteria: string;
 
-    syncMode: string;
-
     syncFlowName: string;
-
-    syncFlowType: string;
 }
 
 export interface SyncFlowResponse {
@@ -32,11 +28,7 @@ export interface SyncFlowInfo {
 
     destFolderPath : string;
 
-    syncMode: string;
-
     ignorePatten: string;
-
-    syncFlowType: string;
 
     destFolderStats: FolderStats | null;
 
@@ -54,10 +46,8 @@ export interface FolderStats {
     space: string; // MB
 }
 
-export interface RescanSyncFlowRequest {
-    syncFlowId: string;
-}
+export interface ChangeSyncFlowStatusRequest {
+    syncFlowId : string;
 
-export interface PauseSyncFlowRequest {
-    syncFlowId: string;
+    syncFlowStatus : string;
 }

@@ -42,16 +42,6 @@
             </a-popover>
           </template>
         </a-card>
-        <a-card size="small" style="text-align: left;" title="SyncFlowType">
-          <template #extra>
-            {{ syncFlowInfo.syncFlowType }}
-          </template>
-        </a-card>
-        <a-card size="small" style="text-align: left;" title="SyncSetting">
-          <template #extra>
-            {{ syncFlowInfo.syncMode }}
-          </template>
-        </a-card>
         <a-card size="small" style="text-align: left;" title="DestFolderStats">
           <template #extra>
             <FileOutlined /> {{ syncFlowInfo.destFolderStats.fileCount}}
@@ -75,6 +65,10 @@
             <PauseOutlined/>
             Pause
           </a-button>
+          <a-button class="resume_button" @click="handleResumeSyncFlow(syncFlowInfo.syncFlowId)">
+            <PlayCircleOutlined/>
+            Resume
+          </a-button>
           <a-button class="rescan_button" @click="handleRescanSyncflow(syncFlowInfo.syncFlowId)">
             <RetweetOutlined/>
             Rescan
@@ -92,6 +86,10 @@
         <PauseOutlined/>
         Pause
       </a-button>
+      <a-button class="resume_button" @click="handleResumeAllSyncFlow">
+        <PlayCircleOutlined/>
+        Resume
+      </a-button>
       <a-button class="rescan_button" @click="handleRescanAllSyncFlow">
         <RetweetOutlined/>
         Rescan
@@ -107,11 +105,11 @@
 </template>
 
 <script setup lang="ts">
-import {getSyncFlow, pauseSyncFlow, rescanSyncFlow, pauseAllSyncFlow, rescanAllSyncFlow} from '../../api/api';
-import {SyncFlowInfo, SyncFlowResponse, RescanSyncFlowRequest, PauseSyncFlowRequest} from "../../api/SyncFlowDataType";
+import {getSyncFlow, changeSyncFlowStatus, changeAllSyncFlowStatus} from '../../api/api';
+import {SyncFlowInfo, SyncFlowResponse, ChangeSyncFlowStatusRequest} from "../../api/SyncFlowDataType";
 import SyncFlowModal from "./SyncFlowModal.vue";
 import {EditOutlined, FolderOutlined, PauseOutlined, PlusOutlined, RetweetOutlined, FileOutlined,
-HddOutlined} from '@ant-design/icons-vue';
+HddOutlined, PlayCircleOutlined} from '@ant-design/icons-vue';
 import {onMounted, Ref, ref} from 'vue';
 
 // 折叠面板选中的 key
@@ -153,25 +151,45 @@ const handleSyncFlowAdd = () => {
   getSyncFlowInfoList();
 }
 const handleRescanAllSyncFlow = () => {
-  rescanAllSyncFlow();
+  changeAllSyncFlowStatus({
+    syncFlowId: null,
+    syncFlowStatus: "RESCAN"
+  });
   handleSyncFlowRefresh();
 }
 const handlePauseAllSyncFlow = () => {
-  pauseAllSyncFlow();
+  changeAllSyncFlowStatus({
+    syncFlowId: null,
+    syncFlowStatus: "PAUSE"
+  });
+  handleSyncFlowRefresh();
+}
+const handleResumeAllSyncFlow = () => {
+  changeAllSyncFlowStatus({
+    syncFlowId: null,
+    syncFlowStatus: "RESUME"
+  });
   handleSyncFlowRefresh();
 }
 const handleRescanSyncflow = (syncFlowId:string) => {
-  const rescanSyncFlowRequest:RescanSyncFlowRequest = {
-    syncFlowId: syncFlowId
-  }
-  rescanSyncFlow(rescanSyncFlowRequest);
+  changeSyncFlowStatus({
+    syncFlowId: syncFlowId,
+    syncFlowStatus: "RESCAN"
+  });
   handleSyncFlowRefresh();
 }
 const handlePauseSyncFlow = (syncFlowId:string) => {
-  const pauseSyncFlowRequest:PauseSyncFlowRequest = {
-    syncFlowId: syncFlowId
-  }
-  pauseSyncFlow(pauseSyncFlowRequest);
+  changeSyncFlowStatus({
+    syncFlowId: syncFlowId,
+    syncFlowStatus: "PAUSE"
+  });
+  handleSyncFlowRefresh();
+}
+const handleResumeSyncFlow = (syncFlowId:string) => {
+  changeSyncFlowStatus({
+    syncFlowId: syncFlowId,
+    syncFlowStatus: "RESUME"
+  });
   handleSyncFlowRefresh();
 }
 </script>

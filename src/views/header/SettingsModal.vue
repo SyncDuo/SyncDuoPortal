@@ -16,12 +16,6 @@
           <a-form-item label="Backup Storage Path" class="form-item">
             <search-bar v-model="form.backupStoragePath" />
           </a-form-item>
-          <a-form-item label="Handler Min Threads" class="form-item">
-            <a-input v-model="form.handlerMinThreads" />
-          </a-form-item>
-          <a-form-item label="Handler Max Threads" class="form-item">
-            <a-input v-model="form.handlerMaxThreads" />
-          </a-form-item>
         </a-form>
       </a-tab-pane>
     </a-tabs>
@@ -43,9 +37,7 @@ const getEmptySystemConfig = ():SystemConfig => {
   return {
     systemConfigId: "",
     syncStoragePath: "",
-    backupStoragePath: "",
-    handlerMinThreads: 5,
-    handlerMaxThreads: 5,
+    backupStoragePath: ""
   }
 };
 // 定义 systemConfig
