@@ -3,17 +3,11 @@ export interface SystemConfigResponse {
 
     message: string;
 
-    systemConfigMap: SystemConfig;
+    systemConfigEntity: SystemConfigEntity;
 }
 
-export interface UpdateSystemConfigRequest {
-    systemConfigMap: SystemConfig;
-}
-
-export interface SystemConfig {
-    systemConfigId: string;
-
-    syncStoragePath: string;
+export interface SystemConfigEntity {
+    systemConfigId: number;
 
     backupStoragePath: string;
 }

@@ -29,6 +29,8 @@
 import Header from './header/Header.vue';
 import Syncflow from './syncflow/SyncFlow.vue';
 import System from './system/System.vue';
+
+document.title = "Portal"
 </script>
 
 <style scoped>

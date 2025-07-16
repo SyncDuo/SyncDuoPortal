@@ -1,7 +1,7 @@
 import axiosInstance from "../util/http.js";
 import {CreateSyncFlowRequest, ChangeSyncFlowStatusRequest, SyncFlowResponse} from "./SyncFlowDataType"
 import {FileSystemResponse} from "./FileSystemDataType"
-import {SystemConfigResponse, UpdateSystemConfigRequest} from "./SystemConfigDataType";
+import {SystemConfigEntity, SystemConfigResponse} from "./SystemConfigDataType";
 import {SystemInfoResponse} from "./SystemInfoDataType";
 
 const syncFlowUrl : string = "/sync-flow";
@@ -64,7 +64,7 @@ export async function getSystemConfig():Promise<SystemConfigResponse> {
     return response.data;
 }
 
-export async function postSystemConfig(payload:UpdateSystemConfigRequest):Promise<SystemConfigResponse> {
+export async function postSystemConfig(payload:SystemConfigEntity):Promise<SystemConfigResponse> {
     const response = await axiosInstance.post<SystemConfigResponse>(
         systemConfigUrl + "/update-system-config",
         payload
