@@ -14,8 +14,6 @@
           <a-menu-item key="1" @click="handleSettingsButtonClick">
             <SettingOutlined />
             Settings
-            <!-- Use the ModalComponent -->
-            <settings-modal ref="settingsModalRef" @systemConfigUpdated=""/>
           </a-menu-item>
           <a-menu-item key="2">
             <FileTextFilled />
@@ -35,6 +33,8 @@
       </a-button>
     </a-dropdown>
 
+    <!-- Use the ModalComponent -->
+    <settings-modal ref="settingsModalRef"/>
   </div>
 </template>
 
@@ -60,12 +60,12 @@ const handleMenuClick = e => {
   console.log('click', e);
 };
 // 定义 SettingsModal 的 ref, 用于访问其方法和变量
-const settingsModalRef:Ref<InstanceType<typeof SettingsModal | null>> = ref(null);
+const settingsModalRef = ref<InstanceType<typeof SettingsModal> | null>(null);
 // 下拉菜单的 settings 按钮点击事件, 展示 modal
 const handleSettingsButtonClick = e => {
   console.log('clickSettingsButton', e);
   if (settingsModalRef.value) {
-    settingsModalRef.value.showModal();
+    settingsModalRef.value?.showModal();
   }
 }
 </script>

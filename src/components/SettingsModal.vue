@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import {getSystemConfig, postSystemConfig} from '../api/api';
+import {getSystemConfig, updateSystemConfig, createSystemConfig} from '../api/api';
 import {ref, Ref, watch} from 'vue';
 import SearchBar from "./SearchBar.vue";
 import {SystemConfigEntity} from "../api/SystemConfigDataType";
@@ -35,9 +35,9 @@ const activeTab:Ref<string> = ref("general");
 // 定义 systemConfig 初始化函数
 const getEmptySystemConfig = ():SystemConfigEntity => {
   return {
-    systemConfigId: 0n,
+    systemConfigId: null,
     backupStoragePath: "",
-    backupIntervalMillis: 0n
+    backupIntervalMillis: 4 * 3600000 // default 4 hours
   }
 };
 // 定义 systemConfig
@@ -51,35 +51,32 @@ const initSystemConfig = async () => {
   if (systemConfigResponse.code === 500) {
     console.error("get systemConfig failed. " + systemConfigResponse.message);
   }
-  if (systemConfigResponse.code === 200) {
+  if (systemConfigResponse.code === 200 && systemConfigResponse.systemConfigEntity !== null) {
     // 第一次登录系统,没有设置参数,所以 form 需要设置为空对象, 而不是 null
     form.value = systemConfigResponse.systemConfigEntity;
   }
 };
-// systemConfig 更新完成后, 发送的事件
-const emit = defineEmits<{
-  systemConfigUpdated: [];
-}>();
 // 更新 systemConfig 函数
-const updateSystemConfig = async (payload:SystemConfigEntity) => {
-  const systemConfigResponse = await postSystemConfig(payload);
+const createOrUpdateSystemConfig = async (payload:SystemConfigEntity) => {
+  let systemConfigResponse: null;
+  if (payload.systemConfigId === null) {
+    systemConfigResponse = await createSystemConfig(payload);
+  } else {
+    systemConfigResponse = await updateSystemConfig(payload);
+  }
   if (systemConfigResponse === null) {
     console.error("update systemConfig failed");
   }
   if (systemConfigResponse.code === 500) {
     console.error("update systemConfig failed. " + systemConfigResponse.message);
   }
-  if (systemConfigResponse.code === 200) {
-    emit('systemConfigUpdated');
-  }
 };
 // modal 正确关闭的事件逻辑
 const handleOk = () => {
   console.log(form.value);
-  updateSystemConfig(form.value);
+  createOrUpdateSystemConfig(form.value);
   isModalVisible.value = false;
   initSystemConfig();
-  emit('systemConfigUpdated');
 };
 // modal 取消/关闭事件的逻辑
 const handleCancel = () => {

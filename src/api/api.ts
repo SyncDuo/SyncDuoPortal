@@ -64,7 +64,15 @@ export async function getSystemConfig():Promise<SystemConfigResponse> {
     return response.data;
 }
 
-export async function postSystemConfig(payload:SystemConfigEntity):Promise<SystemConfigResponse> {
+export async function createSystemConfig(payload:SystemConfigEntity):Promise<SystemConfigResponse> {
+    const response = await axiosInstance.post<SystemConfigResponse>(
+        systemConfigUrl + "/create-system-config",
+        payload
+    );
+    return response.data;
+}
+
+export async function updateSystemConfig(payload:SystemConfigEntity):Promise<SystemConfigResponse> {
     const response = await axiosInstance.post<SystemConfigResponse>(
         systemConfigUrl + "/update-system-config",
         payload
