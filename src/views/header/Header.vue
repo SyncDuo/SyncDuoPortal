@@ -42,7 +42,7 @@
 import {FileSyncOutlined, SettingOutlined, DownOutlined, FileTextFilled} from '@ant-design/icons-vue';
 import { getHostName } from "../../api/api";
 import {onMounted, Ref, ref} from "vue";
-import SettingsModal from "./SettingsModal.vue";
+import SettingsModal from "../../components/SettingsModal.vue";
 
 
 // 获取 hostName 并渲染

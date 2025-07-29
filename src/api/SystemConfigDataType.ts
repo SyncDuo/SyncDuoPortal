@@ -7,7 +7,9 @@ export interface SystemConfigResponse {
 }
 
 export interface SystemConfigEntity {
-    systemConfigId: number;
+    systemConfigId: bigint;
 
     backupStoragePath: string;
+
+    backupIntervalMillis: bigint;
 }

@@ -11,7 +11,10 @@
       <a-tab-pane key="general" tab="General">
         <a-form class="input-group" layout="vertical">
           <a-form-item label="Backup Storage Path" class="form-item">
-            <search-bar v-model="form.backupStoragePath" />
+            <search-bar v-model:value="form.backupStoragePath" />
+          </a-form-item>
+          <a-form-item label="Backup Interval Millis" class="form-item">
+            <a-input v-model:value="form.backupIntervalMillis" />
           </a-form-item>
         </a-form>
       </a-tab-pane>
@@ -20,10 +23,10 @@
 </template>
 
 <script setup lang="ts">
-import {getSystemConfig, postSystemConfig} from '../../api/api';
+import {getSystemConfig, postSystemConfig} from '../api/api';
 import {ref, Ref, watch} from 'vue';
-import SearchBar from "../../components/SearchBar.vue";
-import {SystemConfigEntity, SystemConfigResponse} from "../../api/SystemConfigDataType";
+import SearchBar from "./SearchBar.vue";
+import {SystemConfigEntity} from "../api/SystemConfigDataType";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
@@ -32,8 +35,9 @@ const activeTab:Ref<string> = ref("general");
 // 定义 systemConfig 初始化函数
 const getEmptySystemConfig = ():SystemConfigEntity => {
   return {
-    systemConfigId: 0,
-    backupStoragePath: ""
+    systemConfigId: 0n,
+    backupStoragePath: "",
+    backupIntervalMillis: 0n
   }
 };
 // 定义 systemConfig

@@ -32,7 +32,7 @@ export interface SyncFlowInfo {
 
     destFolderStats: FolderStats | null;
 
-    syncStatus: string;
+    syncStatus: SyncFlowStatus;
 
     lastSyncTimeStamp: string;
 }
@@ -49,5 +49,13 @@ export interface FolderStats {
 export interface ChangeSyncFlowStatusRequest {
     syncFlowId : string;
 
-    syncFlowStatus : string;
+    syncFlowStatus : SyncFlowStatus;
+}
+
+export enum SyncFlowStatus {
+    SYNC = "SYNC",
+    RUNNING = "RUNNING",
+    PAUSE = "PAUSE",
+    RESUME = "RESUME",
+    RESCAN = "RESCAN",
 }

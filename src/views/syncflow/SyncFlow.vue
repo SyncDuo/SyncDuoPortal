@@ -61,56 +61,71 @@
         </a-card>
 
         <div class="sync_flow_info_buttons">
-          <a-button class="pause_button" @click="handlePauseSyncFlow(syncFlowInfo.syncFlowId)">
+          <a-button class="pause_button"
+                    @click="changeSyncFlowStatusFunc(syncFlowInfo.syncFlowId, SyncFlowStatus.PAUSE)">
             <PauseOutlined/>
-            Pause
+            {{ SyncFlowStatus.PAUSE }}
           </a-button>
-          <a-button class="resume_button" @click="handleResumeSyncFlow(syncFlowInfo.syncFlowId)">
+          <a-button class="resume_button"
+                    @click="changeSyncFlowStatusFunc(syncFlowInfo.syncFlowId, SyncFlowStatus.RESUME)">
             <PlayCircleOutlined/>
-            Resume
+            {{ SyncFlowStatus.RESUME }}
           </a-button>
-          <a-button class="rescan_button" @click="handleRescanSyncflow(syncFlowInfo.syncFlowId)">
+          <a-button class="rescan_button"
+                    @click="changeSyncFlowStatusFunc(syncFlowInfo.syncFlowId, SyncFlowStatus.RESCAN)">
             <RetweetOutlined/>
-            Rescan
+            {{ SyncFlowStatus.RESCAN }}
           </a-button>
-          <a-button class="edit_button">
+          <a-button class="edit_button" disabled>
             <EditOutlined/>
-            Edit
+            EDIT
           </a-button>
         </div>
       </a-collapse-panel>
     </a-collapse>
 
     <div class="sync_flow_buttons">
-      <a-button class="pause_button" @click="handlePauseAllSyncFlow">
+      <a-button class="pause_button"
+                @click="changeSyncFlowStatusFunc('0', SyncFlowStatus.PAUSE)">
         <PauseOutlined/>
-        Pause
+        {{ SyncFlowStatus.PAUSE }}
       </a-button>
-      <a-button class="resume_button" @click="handleResumeAllSyncFlow">
+      <a-button class="resume_button"
+                @click="changeSyncFlowStatusFunc('0', SyncFlowStatus.RESUME)">
         <PlayCircleOutlined/>
-        Resume
+        {{ SyncFlowStatus.RESUME }}
       </a-button>
-      <a-button class="rescan_button" @click="handleRescanAllSyncFlow">
+      <a-button class="rescan_button"
+                @click="changeSyncFlowStatusFunc('0', SyncFlowStatus.RESCAN)">
         <RetweetOutlined/>
-        Rescan
+        {{ SyncFlowStatus.RESCAN }}
       </a-button>
       <a-button class="add_button" @click="handleSyncFlowAddButton">
         <PlusOutlined/>
-        Add
+        ADD
       </a-button>
       <!-- Use the ModalComponent -->
-      <sync-flow-modal ref="childModalRef" @syncFlowCreated="handleSyncFlowAdd"/>
+      <sync-flow-modal ref="childModalRef" @syncFlowCreated="getSyncFlowInfoList"/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {getSyncFlow, changeSyncFlowStatus, changeAllSyncFlowStatus} from '../../api/api';
-import {SyncFlowInfo, SyncFlowResponse, ChangeSyncFlowStatusRequest} from "../../api/SyncFlowDataType";
+import {changeAllSyncFlowStatus, changeSyncFlowStatus, getSyncFlow} from '../../api/api';
+import {SyncFlowInfo, SyncFlowResponse, SyncFlowStatus} from "../../api/SyncFlowDataType";
 import SyncFlowModal from "./SyncFlowModal.vue";
-import {EditOutlined, FolderOutlined, PauseOutlined, PlusOutlined, RetweetOutlined, FileOutlined,
-HddOutlined, PlayCircleOutlined} from '@ant-design/icons-vue';
+import {
+  EditOutlined,
+  FileOutlined,
+  FolderOutlined,
+  HddOutlined,
+  PauseOutlined,
+  PlayCircleOutlined,
+  PlusOutlined,
+  RetweetOutlined
+} from '@ant-design/icons-vue';
 import {onMounted, Ref, ref} from 'vue';
+
 
 // 折叠面板选中的 key
 const activeKey:Ref<string[]> = ref([]);
@@ -147,50 +162,22 @@ const handleSyncFlowAddButton = () => {
     childModalRef.value.showModal();
   }
 }
-const handleSyncFlowAdd = () => {
-  getSyncFlowInfoList();
-}
-const handleRescanAllSyncFlow = () => {
-  changeAllSyncFlowStatus({
-    syncFlowId: null,
-    syncFlowStatus: "RESCAN"
-  });
-  handleSyncFlowRefresh();
-}
-const handlePauseAllSyncFlow = () => {
-  changeAllSyncFlowStatus({
-    syncFlowId: null,
-    syncFlowStatus: "PAUSE"
-  });
-  handleSyncFlowRefresh();
-}
-const handleResumeAllSyncFlow = () => {
-  changeAllSyncFlowStatus({
-    syncFlowId: null,
-    syncFlowStatus: "RESUME"
-  });
-  handleSyncFlowRefresh();
-}
-const handleRescanSyncflow = (syncFlowId:string) => {
-  changeSyncFlowStatus({
-    syncFlowId: syncFlowId,
-    syncFlowStatus: "RESCAN"
-  });
-  handleSyncFlowRefresh();
-}
-const handlePauseSyncFlow = (syncFlowId:string) => {
-  changeSyncFlowStatus({
-    syncFlowId: syncFlowId,
-    syncFlowStatus: "PAUSE"
-  });
-  handleSyncFlowRefresh();
-}
-const handleResumeSyncFlow = (syncFlowId:string) => {
-  changeSyncFlowStatus({
-    syncFlowId: syncFlowId,
-    syncFlowStatus: "RESUME"
-  });
-  handleSyncFlowRefresh();
+const changeSyncFlowStatusFunc = (syncFlowId:string, syncFlowStatus:SyncFlowStatus) => {
+  if (syncFlowId === null) {
+    console.error('syncFlowId is null!');
+    return;
+  }
+  if (syncFlowId === "0") {
+    changeAllSyncFlowStatus({
+      syncFlowId:syncFlowId,
+      syncFlowStatus:syncFlowStatus
+    }).finally(() => {getSyncFlowInfoList()});
+  } else {
+    changeSyncFlowStatus({
+      syncFlowId:syncFlowId,
+      syncFlowStatus:syncFlowStatus
+    }).finally(() => {getSyncFlowInfoList()});
+  }
 }
 </script>
 
