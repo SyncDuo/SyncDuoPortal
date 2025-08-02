@@ -10,7 +10,7 @@
 
     <a-dropdown class="dropdown_section">
       <template #overlay>
-        <a-menu @click="handleMenuClick">
+        <a-menu >
           <a-menu-item key="1" @click="handleSettingsButtonClick">
             <SettingOutlined />
             Settings
@@ -18,10 +18,6 @@
           <a-menu-item key="2">
             <FileTextFilled />
             Log
-          </a-menu-item>
-          <a-menu-item key="3">
-
-            remained
           </a-menu-item>
         </a-menu>
       </template>
@@ -48,17 +44,16 @@ import SettingsModal from "../../components/SettingsModal.vue";
 // 获取 hostName 并渲染
 let hostName:Ref<string> = ref('');
 onMounted(async () => {
-      await getHostName()
-          .then(fileSystemResponse => {
-            hostName.value = fileSystemResponse.hostName
-          })
-          .catch(err => console.log(err));
+      const fileSystemResponse = await getHostName();
+      if (fileSystemResponse === null) {
+        console.warn("getHostName() is null");
+      } else if (fileSystemResponse.code !== 200) {
+        console.warn("getHostName() failed. code is" + fileSystemResponse.code);
+      } else {
+        hostName.value = fileSystemResponse.hostName;
+      }
     }
 )
-// 处理菜单点击事件
-const handleMenuClick = e => {
-  console.log('click', e);
-};
 // 定义 SettingsModal 的 ref, 用于访问其方法和变量
 const settingsModalRef = ref<InstanceType<typeof SettingsModal> | null>(null);
 // 下拉菜单的 settings 按钮点击事件, 展示 modal

@@ -2,7 +2,7 @@
   <div class="syncflow_container">
 
     <div class="title-part">
-      <span class="title">SyncFlow</span>
+      <span class="title">Sync Flow</span>
       <a-button class="refresh_button" type="link" @click="handleSyncFlowRefresh">
         <RetweetOutlined/>
       </a-button>
@@ -76,6 +76,11 @@
             <RetweetOutlined/>
             {{ SyncFlowStatus.RESCAN }}
           </a-button>
+          <a-button class="backup_button"
+                    @click="manualBackupSyncFlowFunc(syncFlowInfo.syncFlowId)">
+            <CopyOutlined />
+            BACKUP
+          </a-button>
           <a-button class="edit_button" disabled>
             <EditOutlined/>
             EDIT
@@ -111,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import {changeAllSyncFlowStatus, changeSyncFlowStatus, getSyncFlow} from '../../api/api';
+import {changeAllSyncFlowStatus, changeSyncFlowStatus, getSyncFlow, manualBackupSyncFlow} from '../../api/api';
 import {SyncFlowInfo, SyncFlowResponse, SyncFlowStatus} from "../../api/SyncFlowDataType";
 import SyncFlowModal from "./SyncFlowModal.vue";
 import {
@@ -122,7 +127,8 @@ import {
   PauseOutlined,
   PlayCircleOutlined,
   PlusOutlined,
-  RetweetOutlined
+  RetweetOutlined,
+  CopyOutlined,
 } from '@ant-design/icons-vue';
 import {onMounted, Ref, ref} from 'vue';
 
@@ -177,6 +183,21 @@ const changeSyncFlowStatusFunc = (syncFlowId:string, syncFlowStatus:SyncFlowStat
       syncFlowId:syncFlowId,
       syncFlowStatus:syncFlowStatus
     }).finally(() => {getSyncFlowInfoList()});
+  }
+}
+const manualBackupSyncFlowFunc = async (syncFlowId:string) => {
+  if (syncFlowId === null) {
+    console.error('syncFlowId is null!');
+    return;
+  }
+  const syncFlowResponse = await manualBackupSyncFlow({syncFlowId:syncFlowId});
+  if (syncFlowResponse === null) {
+    console.error('manual backup sync flow failed. syncFlowResponse is null!');
+    return;
+  }
+  if (syncFlowResponse.code !== 200) {
+    console.error("manual backup sync flow failed!" + syncFlowResponse.message);
+    return;
   }
 }
 </script>

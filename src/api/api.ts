@@ -1,5 +1,10 @@
 import axiosInstance from "../util/http.js";
-import {CreateSyncFlowRequest, ChangeSyncFlowStatusRequest, SyncFlowResponse} from "./SyncFlowDataType"
+import {
+    CreateSyncFlowRequest,
+    ChangeSyncFlowStatusRequest,
+    SyncFlowResponse,
+    ManualBackupRequest
+} from "./SyncFlowDataType"
 import {FileSystemResponse} from "./FileSystemDataType"
 import {SystemConfigEntity, SystemConfigResponse} from "./SystemConfigDataType";
 import {SystemInfoResponse} from "./SystemInfoDataType";
@@ -35,6 +40,14 @@ export async function changeSyncFlowStatus(payload:ChangeSyncFlowStatusRequest):
 export async function changeAllSyncFlowStatus(payload:ChangeSyncFlowStatusRequest):Promise<SyncFlowResponse> {
     const response = await axiosInstance.post<SyncFlowResponse>(
         syncFlowUrl + "/change-all-sync-flow-status",
+        payload
+    );
+    return response.data;
+}
+
+export async function manualBackupSyncFlow(payload:ManualBackupRequest):Promise<SyncFlowResponse> {
+    const response = await axiosInstance.post<SyncFlowResponse>(
+        syncFlowUrl + "/backup",
         payload
     );
     return response.data;

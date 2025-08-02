@@ -1,7 +1,7 @@
 <template>
   <div class="system_info_container">
     <div class="title-part">
-      <span class="title">SystemInfo</span>
+      <span class="title">System Info</span>
       <a-button class="refresh_button" type="link" @click="handleSystemInfoRefresh">
         <RetweetOutlined/>
       </a-button>

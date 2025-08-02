@@ -9,6 +9,16 @@ export interface CreateSyncFlowRequest {
     syncFlowName: string;
 }
 
+export interface ChangeSyncFlowStatusRequest {
+    syncFlowId : string;
+
+    syncFlowStatus : SyncFlowStatus;
+}
+
+export interface ManualBackupRequest {
+    syncFlowId : string;
+}
+
 export interface SyncFlowResponse {
 
     code: number;
@@ -44,12 +54,6 @@ export interface FolderStats {
     folderCount: string;
 
     space: string; // MB
-}
-
-export interface ChangeSyncFlowStatusRequest {
-    syncFlowId : string;
-
-    syncFlowStatus : SyncFlowStatus;
 }
 
 export enum SyncFlowStatus {

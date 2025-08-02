@@ -1,22 +1,4 @@
 <template>
-<!--  <div>-->
-<!--    <a-alert-->
-<!--        v-if="showAlert"-->
-<!--        message="Success Text"-->
-<!--        type="success"-->
-<!--        show-icon >-->
-<!--      <template #action>-->
-<!--        <a-button-->
-<!--            type="text"-->
-<!--            size="small"-->
-<!--            @click="handleClose"-->
-<!--            style="margin-left: 8px"-->
-<!--        >-->
-<!--          Close-->
-<!--        </a-button>-->
-<!--      </template>-->
-<!--    </a-alert>-->
-<!--  </div>-->
   <!-- system config is null alert -->
   <div class="alert-container">
     <a-alert

@@ -12,4 +12,6 @@ export interface SystemConfigEntity {
     backupStoragePath: string;
 
     backupIntervalMillis: number;
+
+    backupPassword: string;
 }
