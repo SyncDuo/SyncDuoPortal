@@ -1,7 +1,7 @@
 <template>
   <div class="header-content">
 
-    <div class="title">
+    <div class="snapshot_title">
       <FileSyncOutlined class="title_logo" />
       <span class="syncduo">SyncDuo</span>
     </div>

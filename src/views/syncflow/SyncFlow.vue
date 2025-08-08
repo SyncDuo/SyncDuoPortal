@@ -1,8 +1,8 @@
 <template>
   <div class="syncflow_container">
 
-    <div class="title-part">
-      <span class="title">Sync Flow</span>
+    <div class="title_part">
+      <span class="snapshot_title">Sync Flow</span>
       <a-button class="refresh_button" type="link" @click="handleSyncFlowRefresh">
         <RetweetOutlined/>
       </a-button>
@@ -153,12 +153,12 @@ const getSyncFlowInfoList = async () => {
   syncFlowInfoList.value = syncFlowResponse.syncFlowInfoList;
 }
 // 页面加载的时候获取 syncflow 数据渲染
-onMounted(() => {
-  getSyncFlowInfoList();
+onMounted(async () => {
+  await getSyncFlowInfoList();
 });
 // sync flow 菜单刷新按钮事件, 触发 api 查询, 刷新页面数据
-const handleSyncFlowRefresh = () => {
-  getSyncFlowInfoList();
+const handleSyncFlowRefresh = async () => {
+  await getSyncFlowInfoList();
 };
 // 定义 syncFlowModal 的 ref, 用于访问其方法和变量
 const childModalRef:Ref<InstanceType<typeof SyncFlowModal | null>> = ref(null);
@@ -168,23 +168,26 @@ const handleSyncFlowAddButton = () => {
     childModalRef.value.showModal();
   }
 }
-const changeSyncFlowStatusFunc = (syncFlowId:string, syncFlowStatus:SyncFlowStatus) => {
+// 改变syncflow状态的函数
+const changeSyncFlowStatusFunc = async (syncFlowId:string, syncFlowStatus:SyncFlowStatus) => {
   if (syncFlowId === null) {
     console.error('syncFlowId is null!');
     return;
   }
   if (syncFlowId === "0") {
-    changeAllSyncFlowStatus({
+    await changeAllSyncFlowStatus({
       syncFlowId:syncFlowId,
       syncFlowStatus:syncFlowStatus
-    }).finally(() => {getSyncFlowInfoList()});
+    });
   } else {
-    changeSyncFlowStatus({
+    await changeSyncFlowStatus({
       syncFlowId:syncFlowId,
       syncFlowStatus:syncFlowStatus
-    }).finally(() => {getSyncFlowInfoList()});
+    });
   }
+  await getSyncFlowInfoList();
 }
+// 手动备份的函数
 const manualBackupSyncFlowFunc = async (syncFlowId:string) => {
   if (syncFlowId === null) {
     console.error('syncFlowId is null!');
@@ -208,12 +211,12 @@ const manualBackupSyncFlowFunc = async (syncFlowId:string) => {
   flex-direction: column; /* Stack elements vertically */
 }
 
-.title-part {
+.title_part {
   display: flex;
   justify-content: flex-start;
 }
 
-.title {
+.snapshot_title {
   text-align: left;
   margin-bottom: 16px; /* Add some space below the title */
   font-size: 25px;

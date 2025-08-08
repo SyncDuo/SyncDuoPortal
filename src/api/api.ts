@@ -8,6 +8,7 @@ import {
 import {FileSystemResponse} from "./FileSystemDataType"
 import {SystemConfigEntity, SystemConfigResponse} from "./SystemConfigDataType";
 import {SystemInfoResponse} from "./SystemInfoDataType";
+import {SnapshotsResponse} from "./SnapshotsDataType";
 
 const syncFlowUrl : string = "/sync-flow";
 
@@ -16,6 +17,8 @@ const fileSystemUrl : string = "/filesystem";
 const systemConfigUrl : string = "/system-config";
 
 const systemInfoUrl : string = "/system-info";
+
+const snapshotsUrl : string = "/snapshots";
 
 export async function postSyncFlow(payload:CreateSyncFlowRequest): Promise<SyncFlowResponse> {
     const response =
@@ -98,4 +101,21 @@ export async function getSystemInfo():Promise<SystemInfoResponse> {
         systemInfoUrl + "/get-system-info"
     );
     return response.data;
+}
+
+export async function getSnapshots(syncFlowId:string):Promise<SnapshotsResponse> {
+    if (syncFlowId === null || syncFlowId === undefined || syncFlowId === "") {
+        const response = await axiosInstance.get<SnapshotsResponse>(
+            snapshotsUrl + "/get-snapshots");
+        return response.data;
+    } else {
+        const response = await axiosInstance.get<SnapshotsResponse>(
+            snapshotsUrl + "/get-snapshots",
+            {
+                params: {
+                    syncFlowId: syncFlowId,
+                }
+            });
+        return response.data;
+    }
 }

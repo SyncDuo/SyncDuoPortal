@@ -27,23 +27,36 @@
       <Header />
     </a-layout-header>
 
-    <!-- Main Content Area -->
+    <!-- First Content Area -->
     <a-layout>
       <a-layout-content class="content">
-        <!-- First Content Section -->
+        <!-- Sync Flow Content Section -->
         <div class="content-section">
           <Syncflow />
         </div>
 
         <!-- Divider -->
-        <a-divider class="divider" type="vertical" />
+        <a-divider class="vertical-divider" type="vertical" />
 
-        <!-- Second Content Section -->
+        <!-- System Info Content Section -->
         <div class="content-section">
           <System />
         </div>
       </a-layout-content>
     </a-layout>
+
+    <!-- Divider -->
+    <a-divider class="horizontal-divider" type="horizontal" />
+    <!-- Second Content Area -->
+    <a-layout>
+      <a-layout-content class="content">
+        <!-- snapshots Content Section -->
+        <div class="content-section">
+          <snapshots />
+        </div>
+      </a-layout-content>
+    </a-layout>
+
   </a-layout>
 </template>
 
@@ -51,6 +64,7 @@
 import Header from './header/Header.vue';
 import Syncflow from './syncflow/SyncFlow.vue';
 import System from './system/System.vue';
+import Snapshots from "./snapshots/Snapshots.vue";
 import {getSystemConfig} from "../api/api";
 import {onMounted, ref, Ref} from 'vue';
 
@@ -63,9 +77,7 @@ const isShowingAlert:Ref<boolean> = ref(true);
 const checkSystemConfigValid = async () => {
   // 获取 system config
   const result = await getSystemConfig();
-  console.log(result);
   isShowingAlert.value = result === null || result.systemConfigEntity === null;
-  console.log(isShowingAlert.value);
 }
 onMounted(async () => {
   await checkSystemConfigValid();
@@ -100,9 +112,16 @@ const handleAlertClose = async () => {
   border-radius: 4px;
 }
 
-.divider {
+.vertical-divider {
   width: 0;
   height: auto !important;
+  margin: 0 16px;
+  color: white;
+}
+
+.horizontal-divider {
+  width: auto !important;
+  height: 0;
   margin: 0 16px;
   color: white;
 }

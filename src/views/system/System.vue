@@ -1,7 +1,7 @@
 <template>
   <div class="system_info_container">
     <div class="title-part">
-      <span class="title">System Info</span>
+      <span class="snapshot_title">System Info</span>
       <a-button class="refresh_button" type="link" @click="handleSystemInfoRefresh">
         <RetweetOutlined/>
       </a-button>
@@ -102,7 +102,7 @@ const handleSystemInfoRefresh = () => {
   justify-content: flex-start;
 }
 
-.title {
+.snapshot_title {
   text-align: left;
   margin-bottom: 16px; /* Add some space below the title */
   font-size: 25px;

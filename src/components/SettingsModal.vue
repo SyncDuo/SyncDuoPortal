@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import {createSystemConfig, getSystemConfig, updateSystemConfig} from '../api/api';
 import {ref, Ref, watch} from 'vue';
-import SearchBar from "./SearchBar.vue";
+import SearchBar from "./SearchPathInput.vue";
 import {SystemConfigEntity, SystemConfigResponse} from "../api/SystemConfigDataType";
 import {loadPublicKey} from '../util/rsa';
 import JSEncrypt from 'jsencrypt';
