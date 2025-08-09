@@ -4,12 +4,23 @@ export interface SnapshotsResponse {
 
     message: string;
 
-    snapshots: Record<string, SnapshotsInfo[]>;
+    syncFlowSnapshotsInfoList: SyncFlowSnapshotsInfo[];
 }
 
-export interface SnapshotsInfo {
+export interface SyncFlowSnapshotsInfo {
+
+    syncFlowId: string;
+
+    syncFlowName: string;
+
+    sourceFolderPath: string;
 
     destFolderPath: string;
+
+    snapshotInfoList: SnapshotInfo[];
+}
+
+export interface SnapshotInfo {
 
     startedAt: string;
 

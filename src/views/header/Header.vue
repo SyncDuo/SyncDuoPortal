@@ -38,7 +38,7 @@
 import {FileSyncOutlined, SettingOutlined, DownOutlined, FileTextFilled} from '@ant-design/icons-vue';
 import { getHostName } from "../../api/api";
 import {onMounted, Ref, ref} from "vue";
-import SettingsModal from "../../components/SettingsModal.vue";
+import SettingsModal from "./SettingsModal.vue";
 
 
 // 获取 hostName 并渲染
@@ -59,9 +59,11 @@ const settingsModalRef = ref<InstanceType<typeof SettingsModal> | null>(null);
 // 下拉菜单的 settings 按钮点击事件, 展示 modal
 const handleSettingsButtonClick = e => {
   console.log('clickSettingsButton', e);
-  if (settingsModalRef.value) {
-    settingsModalRef.value?.showModal();
+  if (!settingsModalRef || !settingsModalRef.value) {
+    console.error('setting modal is not init', e);
+    return;
   }
+  settingsModalRef.value.showModal();
 }
 </script>
 

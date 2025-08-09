@@ -26,11 +26,11 @@
 </template>
 
 <script setup lang="ts">
-import {createSystemConfig, getSystemConfig, updateSystemConfig} from '../api/api';
+import {createSystemConfig, getSystemConfig, updateSystemConfig} from '../../api/api';
 import {ref, Ref, watch} from 'vue';
-import SearchBar from "./SearchPathInput.vue";
-import {SystemConfigEntity, SystemConfigResponse} from "../api/SystemConfigDataType";
-import {loadPublicKey} from '../util/rsa';
+import SearchBar from "../../components/SearchPathInput.vue";
+import {SystemConfigEntity, SystemConfigResponse} from "../../api/SystemConfigDataType";
+import {loadPublicKey} from '../../util/rsa';
 import JSEncrypt from 'jsencrypt';
 
 // modal 是否打开的变量

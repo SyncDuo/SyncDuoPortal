@@ -3,77 +3,99 @@
 
     <div class="title_part">
       <span class="snapshot_title">Snapshots</span>
-      <a-button class="refresh_button" type="link" @click="getTableData">
+      <a-button class="refresh_button" type="link" @click="getSyncFlowSnapshotsInfoData">
         <RetweetOutlined/>
       </a-button>
     </div>
 
-    <a-table :columns="columns" :data-source="tableData" bordered >
-      <!-- select syncflow  -->
-      <template #title >
-        <div class="select_syncflow_container">
-          <a-select
-              v-model:value="syncFlowId"
-              show-search
-              placeholder="Select a Path"
-              style="width: 600px"
-              allowClear
-              :options="options"
-              :filter-option="filterOption"
-              @focus="getSelectOption"
-              @change="getTableData"
-          ></a-select>
-        </div>
+    <a-collapse v-model:activeKey="activeKey" accordion class="collapse">
+      <template #expandIcon>
+        <FolderOutlined/>
       </template>
+      <a-collapse-panel
+          v-for="(syncFlowSnapshotsInfo, index) in syncFlowSnapshotsInfoList"
+          :key="index"
+          :name="index.toString()"
+      >
+        <!-- 每个折叠面板的标题 -->
+        <template #header>
+          <div class="custom-panel-text" style="font-size: 15px">
+            <span>{{ syncFlowSnapshotsInfo.syncFlowName }}</span>
+          </div>
+        </template>
+        <!-- 每个折叠面板的展开内容 -->
+        <a-table :columns="columns" :data-source="tableData(syncFlowSnapshotsInfo)" bordered >
+          <!-- 自定义表格标题 header -->
+          <template #title >
+            <!-- 手动备份的按钮 -->
+            <div class="table_title" >
+              <a-button class="backup_button"
+                        @click="manualBackupSyncFlowFunc(syncFlowSnapshotsInfo.syncFlowId)">
+                <CopyOutlined />
+                BACKUP
+              </a-button>
+            </div>
+          </template>
 
-      <!-- snapshots info -->
-      <template #bodyCell="{ column, record }" style="padding-right: 5px">
-        <template v-if="column.dataIndex === 'path'">
-          <a>
-            {{ record.path }}
-          </a>
-        </template>
-        <template v-else-if="column.dataIndex === 'status'">
-          <a-button class="backup_button"
-                    @click="manualBackupSyncFlowFunc(record.syncFlowId)">
-            <CopyOutlined />
-            {{ record.status }}
-          </a-button>
-        </template>
-      </template>
-    </a-table>
+          <!-- snapshots info table-->
+          <template #bodyCell="{ column, record }" style="padding-right: 5px">
+            <template v-if="column.dataIndex === 'path'">
+              <a-button
+                  class="path_button"
+                  type="link"
+                  @click="handlePathButtonClick" >
+                {{ record.path }}
+              </a-button>
+            </template>
+          </template>
+        </a-table>
+      </a-collapse-panel>
+    </a-collapse>
   </div>
+  <snapshots-history-modal ref="snapshotsModalRef" />
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref, Ref} from "vue";
-import {SnapshotsResponse, SnapshotsInfo} from "../../api/SnapshotsDataType";
+import {computed, onMounted, ref, Ref} from "vue";
+import {SnapshotsResponse, SnapshotInfo, SyncFlowSnapshotsInfo} from "../../api/SnapshotsDataType";
 import {getSnapshots, getSyncFlow, manualBackupSyncFlow} from "../../api/api";
-import {CopyOutlined, RetweetOutlined} from "@ant-design/icons-vue";
+import {
+  CopyOutlined, EditOutlined,
+  FileOutlined,
+  FolderOutlined,
+  HddOutlined, PauseOutlined,
+  PlayCircleOutlined,
+  RetweetOutlined
+} from "@ant-design/icons-vue";
 import {formatTimestamp} from "../../util/DateUtil";
 import type { SelectProps } from 'ant-design-vue';
+import SnapshotsHistoryModal from "./SnapshotsHistoryModal.vue";
+import SettingsModal from "../header/SettingsModal.vue";
+import {SyncFlowStatus} from "../../api/SyncFlowDataType";
 
 
-// 下拉选择框的变量
-const syncFlowId:Ref<string> = ref(null);
-const options = ref<SelectProps['options']>([]);
-const filterOption = (input: string, option: any) => {
-  return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-};
-const getSelectOption = async () => {
-  const syncFlowResponse = await getSyncFlow();
-  if (!syncFlowResponse || syncFlowResponse.code !== 200) {
-    console.error("getSelectOption failed. syncflowResponse is null or failed");
-  } else {
-    const syncFlowInfoList = syncFlowResponse.syncFlowInfoList;
-    options.value.length = 0;
-    syncFlowInfoList.forEach(item => {
-      options.value.push({
-        value: item.syncFlowId,
-        label: item.destFolderPath,
-      })
-    })
+// 定义 Snapshots History 的 ref, 用于访问其方法和变量
+const snapshotsModalRef:Ref<InstanceType<typeof SnapshotsHistoryModal> | null> = ref(null);
+// path button 点击事件, 展示 modal
+const handlePathButtonClick = e => {
+  console.log('click sync flow dest path', e);
+  if (snapshotsModalRef.value) {
+    snapshotsModalRef.value?.showModal();
   }
+};
+// 折叠面板需要的变量
+const activeKey:Ref<string[]> = ref([]);
+const syncFlowSnapshotsInfoList:Ref<SyncFlowSnapshotsInfo[]> = ref([]);
+const getSyncFlowSnapshotsInfoData = async () => {
+  const snapshotsResponse:SnapshotsResponse = await getSnapshots("");
+  if (snapshotsResponse === null || snapshotsResponse.code !== 200) {
+    console.error("Error getting snapshots");
+    return;
+  }
+  if (snapshotsResponse.syncFlowSnapshotsInfoList === null) {
+    return;
+  }
+  syncFlowSnapshotsInfoList.value = snapshotsResponse.syncFlowSnapshotsInfoList;
 };
 // 表格需要的变量
 const columns = [
@@ -103,37 +125,23 @@ const columns = [
     width: 140,
   },
 ];
-const tableData:Ref<Object[]> = ref([]);
-const getTableData = async () => {
-  tableData.value.length = 0;
-  // 获取数据
-  const snapshotsResponse:SnapshotsResponse = await getSnapshots(syncFlowId.value);
-  if (snapshotsResponse === null || snapshotsResponse.code !== 200) {
-    console.error("Error getting snapshots");
-    return;
+const tableData = (syncFlowSnapshotsInfo:SyncFlowSnapshotsInfo) => {
+  const snapshotInfoList = syncFlowSnapshotsInfo.snapshotInfoList;
+  if (snapshotInfoList == null || snapshotInfoList.length === 0) {
+    return [];
   }
-  if (snapshotsResponse.snapshots === null) {
-    return;
-  }
-  const snapshots:Map<string, SnapshotsInfo[]> = new Map(Object.entries(snapshotsResponse.snapshots));
-  // 解析
-  let key = 1;
-  snapshots.forEach( (snapshotInfoList: SnapshotsInfo[], syncFlowId:string) => {
-    if (snapshotInfoList === null || snapshotInfoList.length === 0) {
-      return;
-    }
-    let firstItem = snapshotInfoList[0];
-    tableData.value.push({
-      syncFlowId: syncFlowId,
-      key: key,
-      path: firstItem.destFolderPath,
-      lastBackupTime: formatTimestamp(firstItem.finishedAt),
-      snapshotSize:  firstItem.snapshotSize === null ? "0 MB" : firstItem.snapshotSize + " MB",
-      files: firstItem.backupFiles === null ? "0" : firstItem.backupFiles,
-      status: firstItem.backupJobStatus,
-      lastErrorMessage: firstItem.backupErrorMessage === null ? "/" : firstItem.backupErrorMessage,
-    });
+  let key = 0;
+  return snapshotInfoList.map((snapshotInfo) => {
     key += 1;
+    return {
+      key: key,
+      path: syncFlowSnapshotsInfo.destFolderPath,
+      lastBackupTime: formatTimestamp(snapshotInfo.finishedAt),
+      snapshotSize:  snapshotInfo.snapshotSize === null ? "0 MB" : snapshotInfo.snapshotSize + " MB",
+      files: snapshotInfo.backupFiles === null ? "0" : snapshotInfo.backupFiles,
+      status: snapshotInfo.backupJobStatus,
+      lastErrorMessage: snapshotInfo.backupErrorMessage === null ? "/" : snapshotInfo.backupErrorMessage,
+    }
   })
 };
 // 手动备份的函数
@@ -142,19 +150,21 @@ const manualBackupSyncFlowFunc = async (syncFlowId:string) => {
     console.error('syncFlowId is null!');
     return;
   }
-  const syncFlowResponse = await manualBackupSyncFlow({syncFlowId:syncFlowId});
-  if (syncFlowResponse === null) {
-    console.error('manual backup sync flow failed. syncFlowResponse is null!');
+  const snapshotsResponse = await manualBackupSyncFlow({syncFlowId:syncFlowId});
+  console.log(snapshotsResponse);
+  if (snapshotsResponse === null) {
+    console.error('manual backup sync flow failed. snapshotsResponse is null!');
     return;
   }
-  if (syncFlowResponse.code !== 200) {
-    console.error("manual backup sync flow failed!" + syncFlowResponse.message);
+  if (snapshotsResponse.code !== 200) {
+    console.error("manual backup sync flow failed!" + snapshotsResponse.message);
     return;
   }
-}
-// 页面加载的时候获取全部 snapshotsInfo 和 全部 syncflow
+  await getSyncFlowSnapshotsInfoData();
+};
+// 页面加载的时候获取全部 syncFlowSnapshotsInfoData
 onMounted(async () => {
-  await getTableData();
+  await getSyncFlowSnapshotsInfoData();
 })
 </script>
 
@@ -180,8 +190,14 @@ onMounted(async () => {
   outline: none;
 }
 
-.select_syncflow_container {
+.custom-panel-text {
   display: flex;
-  justify-content: flex-start;
+  align-items: center;
+  width: 100%; /* Ensures the header spans the full width */
+}
+
+.table_title {
+  display: flex; /* Use Flexbox to align buttons horizontally */
+  justify-content: flex-start; /* Align items to the right */
 }
 </style>

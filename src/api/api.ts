@@ -48,14 +48,6 @@ export async function changeAllSyncFlowStatus(payload:ChangeSyncFlowStatusReques
     return response.data;
 }
 
-export async function manualBackupSyncFlow(payload:ManualBackupRequest):Promise<SyncFlowResponse> {
-    const response = await axiosInstance.post<SyncFlowResponse>(
-        syncFlowUrl + "/backup",
-        payload
-    );
-    return response.data;
-}
-
 export async function getHostName():Promise<FileSystemResponse> {
     const response = await axiosInstance.get<FileSystemResponse>(
         fileSystemUrl + "/get-hostname");
@@ -99,6 +91,14 @@ export async function updateSystemConfig(payload:SystemConfigEntity):Promise<Sys
 export async function getSystemInfo():Promise<SystemInfoResponse> {
     const response = await axiosInstance.get<SystemInfoResponse>(
         systemInfoUrl + "/get-system-info"
+    );
+    return response.data;
+}
+
+export async function manualBackupSyncFlow(payload:ManualBackupRequest):Promise<SnapshotsResponse> {
+    const response = await axiosInstance.post<SnapshotsResponse>(
+        snapshotsUrl + "/backup",
+        payload
     );
     return response.data;
 }

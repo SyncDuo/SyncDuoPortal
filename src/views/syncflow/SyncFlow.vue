@@ -76,11 +76,6 @@
             <RetweetOutlined/>
             {{ SyncFlowStatus.RESCAN }}
           </a-button>
-          <a-button class="backup_button"
-                    @click="manualBackupSyncFlowFunc(syncFlowInfo.syncFlowId)">
-            <CopyOutlined />
-            BACKUP
-          </a-button>
           <a-button class="edit_button" disabled>
             <EditOutlined/>
             EDIT
@@ -186,22 +181,6 @@ const changeSyncFlowStatusFunc = async (syncFlowId:string, syncFlowStatus:SyncFl
     });
   }
   await getSyncFlowInfoList();
-}
-// 手动备份的函数
-const manualBackupSyncFlowFunc = async (syncFlowId:string) => {
-  if (syncFlowId === null) {
-    console.error('syncFlowId is null!');
-    return;
-  }
-  const syncFlowResponse = await manualBackupSyncFlow({syncFlowId:syncFlowId});
-  if (syncFlowResponse === null) {
-    console.error('manual backup sync flow failed. syncFlowResponse is null!');
-    return;
-  }
-  if (syncFlowResponse.code !== 200) {
-    console.error("manual backup sync flow failed!" + syncFlowResponse.message);
-    return;
-  }
 }
 </script>
 
