@@ -2,7 +2,7 @@
   <div class="system_info_container">
     <div class="title-part">
       <span class="snapshot_title">System Info</span>
-      <a-button class="refresh_button" type="link" @click="handleSystemInfoRefresh">
+      <a-button class="refresh_button" type="link" @click="getSystemInfoFunc">
         <RetweetOutlined/>
       </a-button>
     </div>
@@ -45,9 +45,11 @@
 import {getSystemInfo} from '../../api/api';
 import {SystemInfoResponse} from "../../api/SystemInfoDataType.js";
 import {FolderOutlined, FileOutlined, HddOutlined, RetweetOutlined} from '@ant-design/icons-vue';
-import {onMounted, Ref, ref} from 'vue';
+import {onMounted, onUnmounted, Ref, ref} from 'vue';
+import {useGlobalTimerStore} from "../../store/timer";
 
-
+// 使用全局定时器
+const timer = useGlobalTimerStore();
 // 定义 systemInfoResponse
 let systemInfoResponse:Ref<SystemInfoResponse> = ref({
   code: null,
@@ -79,16 +81,14 @@ const getSystemInfoFunc = async () => {
   } else {
     systemInfoResponse.value = result;
   }
-}
-//
-// 页面加载的时候获取 syncflow 数据渲染
-onMounted(() => {
-  getSystemInfoFunc();
-});
-// system 菜单刷新按钮事件, 触发 api 查询, 刷新页面数据
-const handleSystemInfoRefresh = () => {
-  getSystemInfoFunc();
 };
+// 页面加载的时候获取 system 数据渲染
+onMounted(() => {
+  timer.registerJob("getSystemInfoFunc", getSystemInfoFunc);
+});
+onUnmounted(() => {
+  timer.unregisterJob("getSystemInfoFunc");
+})
 </script>
 
 <style scoped>

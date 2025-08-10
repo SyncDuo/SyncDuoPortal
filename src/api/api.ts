@@ -1,4 +1,4 @@
-import axiosInstance from "../util/http.js";
+import axiosInstance from "../util/http";
 import {
     CreateSyncFlowRequest,
     ChangeSyncFlowStatusRequest,

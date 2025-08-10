@@ -37,23 +37,36 @@
 <script setup lang="ts">
 import {FileSyncOutlined, SettingOutlined, DownOutlined, FileTextFilled} from '@ant-design/icons-vue';
 import { getHostName } from "../../api/api";
-import {onMounted, Ref, ref} from "vue";
+import {onMounted, onUnmounted, Ref, ref} from "vue";
 import SettingsModal from "./SettingsModal.vue";
+import {useGlobalTimerStore} from "../../store/timer";
 
 
+// 获取全局定时器
+const timer = useGlobalTimerStore();
 // 获取 hostName 并渲染
 let hostName:Ref<string> = ref('');
-onMounted(async () => {
-      const fileSystemResponse = await getHostName();
-      if (fileSystemResponse === null) {
-        console.warn("getHostName() is null");
-      } else if (fileSystemResponse.code !== 200) {
-        console.warn("getHostName() failed. code is" + fileSystemResponse.code);
-      } else {
-        hostName.value = fileSystemResponse.hostName;
-      }
+const getHostNameFunc = async () => {
+  const fileSystemResponse = await getHostName();
+  if (fileSystemResponse === null) {
+    console.error("getHostName() is null");
+    hostName.value = "Request failed"
+  } else if (fileSystemResponse.code !== 200) {
+    console.error("getHostName() failed. ex message is " + fileSystemResponse.message);
+    hostName.value = "Request failed"
+  } else {
+    if (hostName.value === fileSystemResponse.hostName) {
+      return;
     }
-)
+    hostName.value = fileSystemResponse.hostName;
+  }
+};
+onMounted(() => {
+  timer.registerJob("getHostNameFunc", getHostNameFunc);
+});
+onUnmounted(() => {
+  timer.unregisterJob("getHostNameFunc");
+});
 // 定义 SettingsModal 的 ref, 用于访问其方法和变量
 const settingsModalRef = ref<InstanceType<typeof SettingsModal> | null>(null);
 // 下拉菜单的 settings 按钮点击事件, 展示 modal

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",            // allow latest JS features
+    "module": "ESNext",            // required for import.meta
+    "moduleResolution": "Node",    // how modules are resolved
+    "lib": ["ESNext", "DOM"],       // DOM + latest JS APIs
+    "types": ["vite/client"]        // Vite import.meta.env types
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.vue"
+  ]
+}

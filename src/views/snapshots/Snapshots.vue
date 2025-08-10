@@ -56,24 +56,21 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, Ref} from "vue";
+import {computed, onMounted, onUnmounted, ref, Ref} from "vue";
 import {SnapshotsResponse, SnapshotInfo, SyncFlowSnapshotsInfo} from "../../api/SnapshotsDataType";
 import {getSnapshots, getSyncFlow, manualBackupSyncFlow} from "../../api/api";
 import {
-  CopyOutlined, EditOutlined,
-  FileOutlined,
+  CopyOutlined,
   FolderOutlined,
-  HddOutlined, PauseOutlined,
-  PlayCircleOutlined,
   RetweetOutlined
 } from "@ant-design/icons-vue";
 import {formatTimestamp} from "../../util/DateUtil";
-import type { SelectProps } from 'ant-design-vue';
 import SnapshotsHistoryModal from "./SnapshotsHistoryModal.vue";
-import SettingsModal from "../header/SettingsModal.vue";
-import {SyncFlowStatus} from "../../api/SyncFlowDataType";
+import {useGlobalTimerStore} from "../../store/timer";
 
 
+// 全局定时器
+const timer = useGlobalTimerStore();
 // 定义 Snapshots History 的 ref, 用于访问其方法和变量
 const snapshotsModalRef:Ref<InstanceType<typeof SnapshotsHistoryModal> | null> = ref(null);
 // path button 点击事件, 展示 modal
@@ -163,9 +160,12 @@ const manualBackupSyncFlowFunc = async (syncFlowId:string) => {
   await getSyncFlowSnapshotsInfoData();
 };
 // 页面加载的时候获取全部 syncFlowSnapshotsInfoData
-onMounted(async () => {
-  await getSyncFlowSnapshotsInfoData();
-})
+onMounted(() => {
+  timer.registerJob("getSyncFlowSnapshotsInfoData", getSyncFlowSnapshotsInfoData);
+});
+onUnmounted(() => {
+  timer.unregisterJob("getSyncFlowSnapshotsInfoData");
+});
 </script>
 
 <style scoped>

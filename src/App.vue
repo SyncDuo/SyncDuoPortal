@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import Dashboard from "./views/Dashboard.vue";
 </script>
 

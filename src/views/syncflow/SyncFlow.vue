@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import {changeAllSyncFlowStatus, changeSyncFlowStatus, getSyncFlow, manualBackupSyncFlow} from '../../api/api';
+import {changeAllSyncFlowStatus, changeSyncFlowStatus, getSyncFlow} from '../../api/api';
 import {SyncFlowInfo, SyncFlowResponse, SyncFlowStatus} from "../../api/SyncFlowDataType";
 import SyncFlowModal from "./SyncFlowModal.vue";
 import {
@@ -123,11 +123,13 @@ import {
   PlayCircleOutlined,
   PlusOutlined,
   RetweetOutlined,
-  CopyOutlined,
 } from '@ant-design/icons-vue';
-import {onMounted, Ref, ref} from 'vue';
+import {onMounted, onUnmounted, Ref, ref} from 'vue';
+import {useGlobalTimerStore} from "../../store/timer";
 
 
+// 定时器
+const timer = useGlobalTimerStore();
 // 折叠面板选中的 key
 const activeKey:Ref<string[]> = ref([]);
 // 定义 syncFlowInfoList
@@ -147,10 +149,6 @@ const getSyncFlowInfoList = async () => {
   }
   syncFlowInfoList.value = syncFlowResponse.syncFlowInfoList;
 }
-// 页面加载的时候获取 syncflow 数据渲染
-onMounted(async () => {
-  await getSyncFlowInfoList();
-});
 // sync flow 菜单刷新按钮事件, 触发 api 查询, 刷新页面数据
 const handleSyncFlowRefresh = async () => {
   await getSyncFlowInfoList();
@@ -162,7 +160,7 @@ const handleSyncFlowAddButton = () => {
   if (childModalRef.value) {
     childModalRef.value.showModal();
   }
-}
+};
 // 改变syncflow状态的函数
 const changeSyncFlowStatusFunc = async (syncFlowId:string, syncFlowStatus:SyncFlowStatus) => {
   if (syncFlowId === null) {
@@ -181,7 +179,14 @@ const changeSyncFlowStatusFunc = async (syncFlowId:string, syncFlowStatus:SyncFl
     });
   }
   await getSyncFlowInfoList();
-}
+};
+// 页面加载的时候获取 syncflow 数据渲染
+onMounted(() => {
+  timer.registerJob("getSyncFlowInfoList", getSyncFlowInfoList);
+});
+onUnmounted(() => {
+  timer.unregisterJob("getSyncFlowInfoList");
+})
 </script>
 
 <style scoped>
