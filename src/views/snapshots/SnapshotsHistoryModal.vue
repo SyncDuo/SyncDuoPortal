@@ -132,7 +132,7 @@ import {getSnapshotFiles} from "../../api/api";
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
 // modal 传入的 snapshotId
-const snapshotId:Ref<string> = ref<string>("");
+const backupJobId:Ref<string> = ref<string>("");
 
 // 表格列定义
 const columns = [
@@ -179,11 +179,11 @@ const previewTitle = ref<string>("文件预览");
 const fetchFiles = async () => {
   try {
     loading.value = true;
-    if (!snapshotId || snapshotId.value === "") {
-      console.error("snapshotId must be specified!");
+    if (!backupJobId || backupJobId.value === "") {
+      console.error("backupJobId must be specified!");
       return;
     }
-    fileList.value = (await getSnapshotFiles(snapshotId.value, currentPath.value)).dataList;
+    fileList.value = (await getSnapshotFiles(backupJobId.value, currentPath.value)).dataList;
   } catch (error) {
     console.error("获取文件列表失败:", error);
   } finally {
@@ -269,10 +269,10 @@ const downloadFile = () => {
 // 定义需要暴露的方法
 defineExpose({
   // 控制 modal 显示隐藏的方法
-  showModal: async (snapshotIdArg:string) => {
+  showModal: async (backupJobIdArg:string) => {
     isModalVisible.value = true;
-    // 设置 snapshot id 并刷新文件列表
-    snapshotId.value = snapshotIdArg;
+    // 设置 backupJobId 并刷新文件列表
+    backupJobId.value = backupJobIdArg;
     await fetchFiles();
   }
 });

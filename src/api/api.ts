@@ -120,12 +120,12 @@ export async function getSnapshots(syncFlowId:string):Promise<SnapshotsResponse>
     }
 }
 
-export async function getSnapshotFiles(snapshotId:string, path:string):Promise<SnapshotsFileResponse> {
+export async function getSnapshotFiles(backupJobId:string, path:string):Promise<SnapshotsFileResponse> {
     const response = await axiosInstance.get<SnapshotsFileResponse>(
         snapshotsUrl + "/get-snapshot-files",
         {
             params: {
-                snapshotId: snapshotId,
+                backupJobId: backupJobId,
                 pathString: path
             }
         });

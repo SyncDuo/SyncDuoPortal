@@ -43,7 +43,7 @@
               <a-button
                   class="path_button"
                   type="link"
-                  @click="handlePathButtonClick(record.snapshotId)" >
+                  @click="handlePathButtonClick(record.backupJobId)" >
                 {{ record.path }}
               </a-button>
             </template>
@@ -74,9 +74,9 @@ const timer = useGlobalTimerStore();
 // 定义 Snapshots History 的 ref, 用于访问其方法和变量
 const snapshotsModalRef:Ref<InstanceType<typeof SnapshotsHistoryModal> | null> = ref(null);
 // path button 点击事件, 展示 modal
-const handlePathButtonClick = (snapshotId:string) => {
+const handlePathButtonClick = (backupJobId:string) => {
   if (snapshotsModalRef.value) {
-    snapshotsModalRef.value.showModal(snapshotId);
+    snapshotsModalRef.value.showModal(backupJobId);
   }
 };
 // 折叠面板需要的变量
@@ -131,6 +131,7 @@ const tableData = (syncFlowSnapshotsInfo:SyncFlowWithSnapshots) => {
     key += 1;
     return {
       key: key,
+      backupJobId: snapshotInfo.backupJobId,
       snapshotId: snapshotInfo.snapshotId,
       path: syncFlowSnapshotsInfo.destFolderPath,
       lastBackupTime: formatTimestamp(snapshotInfo.finishedAt),

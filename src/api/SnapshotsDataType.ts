@@ -31,6 +31,8 @@ export interface SyncFlowWithSnapshots {
 
 export interface SnapshotInfo {
 
+    backupJobId: string;
+
     startedAt: string;
 
     finishedAt: string;
