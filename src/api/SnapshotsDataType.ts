@@ -4,10 +4,19 @@ export interface SnapshotsResponse {
 
     message: string;
 
-    syncFlowSnapshotsInfoList: SyncFlowSnapshotsInfo[];
+    dataList: SyncFlowWithSnapshots[];
 }
 
-export interface SyncFlowSnapshotsInfo {
+export interface SnapshotsFileResponse {
+
+    code: number;
+
+    message: string;
+
+    dataList: SnapshotFileInfo[];
+}
+
+export interface SyncFlowWithSnapshots {
 
     syncFlowId: string;
 
@@ -35,4 +44,17 @@ export interface SnapshotInfo {
     backupJobStatus: string;
 
     backupErrorMessage: string;
+}
+
+export interface SnapshotFileInfo {
+
+    path: string;
+
+    fileName: string;
+
+    lastModifiedTime: string;
+
+    size: string;
+
+    type: "file" | "dir";
 }

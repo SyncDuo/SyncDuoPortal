@@ -10,7 +10,7 @@
 
     <a-collapse v-model:activeKey="activeKey" accordion class="collapse">
       <template #expandIcon>
-        <FolderOutlined/>
+        <DeliveredProcedureOutlined />
       </template>
       <a-collapse-panel
           v-for="(syncFlowInfo, index) in syncFlowInfoList"
@@ -123,6 +123,7 @@ import {
   PlayCircleOutlined,
   PlusOutlined,
   RetweetOutlined,
+  DeliveredProcedureOutlined,
 } from '@ant-design/icons-vue';
 import {onMounted, onUnmounted, Ref, ref} from 'vue';
 import {useGlobalTimerStore} from "../../store/timer";

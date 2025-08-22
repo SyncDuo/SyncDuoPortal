@@ -10,7 +10,7 @@
 
     <a-collapse v-model:activeKey="activeKey" accordion class="collapse">
       <template #expandIcon>
-        <FolderOutlined/>
+        <DeliveredProcedureOutlined />
       </template>
       <a-collapse-panel
           v-for="(syncFlowSnapshotsInfo, index) in syncFlowSnapshotsInfoList"
@@ -31,7 +31,7 @@
             <div class="table_title" >
               <a-button class="backup_button"
                         @click="manualBackupSyncFlowFunc(syncFlowSnapshotsInfo.syncFlowId)">
-                <CopyOutlined />
+                <CloudServerOutlined />
                 BACKUP
               </a-button>
             </div>
@@ -43,7 +43,7 @@
               <a-button
                   class="path_button"
                   type="link"
-                  @click="handlePathButtonClick" >
+                  @click="handlePathButtonClick(record.snapshotId)" >
                 {{ record.path }}
               </a-button>
             </template>
@@ -56,13 +56,13 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, ref, Ref} from "vue";
-import {SnapshotsResponse, SnapshotInfo, SyncFlowSnapshotsInfo} from "../../api/SnapshotsDataType";
-import {getSnapshots, getSyncFlow, manualBackupSyncFlow} from "../../api/api";
+import {onMounted, onUnmounted, ref, Ref} from "vue";
+import {SnapshotsResponse, SyncFlowWithSnapshots} from "../../api/SnapshotsDataType";
+import {getSnapshots, manualBackupSyncFlow} from "../../api/api";
 import {
-  CopyOutlined,
-  FolderOutlined,
-  RetweetOutlined
+  DeliveredProcedureOutlined,
+  RetweetOutlined,
+  CloudServerOutlined,
 } from "@ant-design/icons-vue";
 import {formatTimestamp} from "../../util/DateUtil";
 import SnapshotsHistoryModal from "./SnapshotsHistoryModal.vue";
@@ -74,25 +74,24 @@ const timer = useGlobalTimerStore();
 // 定义 Snapshots History 的 ref, 用于访问其方法和变量
 const snapshotsModalRef:Ref<InstanceType<typeof SnapshotsHistoryModal> | null> = ref(null);
 // path button 点击事件, 展示 modal
-const handlePathButtonClick = e => {
-  console.log('click sync flow dest path', e);
+const handlePathButtonClick = (snapshotId:string) => {
   if (snapshotsModalRef.value) {
-    snapshotsModalRef.value?.showModal();
+    snapshotsModalRef.value.showModal(snapshotId);
   }
 };
 // 折叠面板需要的变量
 const activeKey:Ref<string[]> = ref([]);
-const syncFlowSnapshotsInfoList:Ref<SyncFlowSnapshotsInfo[]> = ref([]);
+const syncFlowSnapshotsInfoList:Ref<SyncFlowWithSnapshots[]> = ref([]);
 const getSyncFlowSnapshotsInfoData = async () => {
   const snapshotsResponse:SnapshotsResponse = await getSnapshots("");
   if (snapshotsResponse === null || snapshotsResponse.code !== 200) {
     console.error("Error getting snapshots");
     return;
   }
-  if (snapshotsResponse.syncFlowSnapshotsInfoList === null) {
+  if (snapshotsResponse.dataList === null) {
     return;
   }
-  syncFlowSnapshotsInfoList.value = snapshotsResponse.syncFlowSnapshotsInfoList;
+  syncFlowSnapshotsInfoList.value = snapshotsResponse.dataList;
 };
 // 表格需要的变量
 const columns = [
@@ -122,7 +121,7 @@ const columns = [
     width: 140,
   },
 ];
-const tableData = (syncFlowSnapshotsInfo:SyncFlowSnapshotsInfo) => {
+const tableData = (syncFlowSnapshotsInfo:SyncFlowWithSnapshots) => {
   const snapshotInfoList = syncFlowSnapshotsInfo.snapshotInfoList;
   if (snapshotInfoList == null || snapshotInfoList.length === 0) {
     return [];
@@ -132,6 +131,7 @@ const tableData = (syncFlowSnapshotsInfo:SyncFlowSnapshotsInfo) => {
     key += 1;
     return {
       key: key,
+      snapshotId: snapshotInfo.snapshotId,
       path: syncFlowSnapshotsInfo.destFolderPath,
       lastBackupTime: formatTimestamp(snapshotInfo.finishedAt),
       snapshotSize:  snapshotInfo.snapshotSize === null ? "0 MB" : snapshotInfo.snapshotSize + " MB",

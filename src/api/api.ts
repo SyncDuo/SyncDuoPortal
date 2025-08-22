@@ -8,7 +8,7 @@ import {
 import {FileSystemResponse} from "./FileSystemDataType"
 import {SystemConfigEntity, SystemConfigResponse} from "./SystemConfigDataType";
 import {SystemInfoResponse} from "./SystemInfoDataType";
-import {SnapshotsResponse} from "./SnapshotsDataType";
+import {SnapshotsFileResponse, SnapshotsResponse} from "./SnapshotsDataType";
 
 const syncFlowUrl : string = "/sync-flow";
 
@@ -118,4 +118,16 @@ export async function getSnapshots(syncFlowId:string):Promise<SnapshotsResponse>
             });
         return response.data;
     }
+}
+
+export async function getSnapshotFiles(snapshotId:string, path:string):Promise<SnapshotsFileResponse> {
+    const response = await axiosInstance.get<SnapshotsFileResponse>(
+        snapshotsUrl + "/get-snapshot-files",
+        {
+            params: {
+                snapshotId: snapshotId,
+                pathString: path
+            }
+        });
+    return response.data;
 }
