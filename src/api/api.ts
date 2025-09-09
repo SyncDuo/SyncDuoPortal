@@ -44,6 +44,13 @@ export async function changeAllSyncFlowStatus(payload:ChangeSyncFlowStatusReques
     );
 }
 
+export async function updateFilterCriteria(payload: string) {
+    await restAxiosInstance.post<null>(
+        syncFlowUrl + "/update-filter-criteria",
+        payload
+    );
+}
+
 export async function getHostName():Promise<string> {
     const response = await restAxiosInstance.get<SyncDuoHttpResponse<string>>(
         fileSystemUrl + "/get-hostname");

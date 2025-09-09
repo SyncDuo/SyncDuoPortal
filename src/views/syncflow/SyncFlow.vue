@@ -76,7 +76,9 @@
             <RetweetOutlined/>
             {{ SyncFlowStatus.RESCAN }}
           </a-button>
-          <a-button class="edit_button" disabled>
+          <a-button class="edit_button"
+                    @click=""
+                    disabled>
             <EditOutlined/>
             EDIT
           </a-button>

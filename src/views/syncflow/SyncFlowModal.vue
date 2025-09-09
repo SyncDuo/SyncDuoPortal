@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import {addSyncFlow} from '../../api/api'
+import {addSyncFlow, updateFilterCriteria} from '../../api/api'
 import {ref, Ref} from 'vue';
 import {CreateSyncFlowRequest} from "../../api/SyncFlowDataType";
 import SearchBar from "../../components/SearchPathInput.vue";
@@ -75,6 +75,13 @@ const emit = defineEmits<{
 const createSyncFlow = async (payload:CreateSyncFlowRequest) => {
   await addSyncFlow(payload);
   emit('syncFlowCreated');
+};
+// 改变 syncflow filter criteria 的函数
+const updateFilterCriteriaFunc = async (filterCriteria:string) => {
+  if (filterCriteria === null || filterCriteria === undefined || filterCriteria.trim() === "") {
+    return;
+  }
+  await updateFilterCriteria(filterCriteria);
 }
 // modal 正确关闭的事件逻辑
 const handleOk = () => {
