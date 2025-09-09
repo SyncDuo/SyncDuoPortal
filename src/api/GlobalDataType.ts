@@ -17,3 +17,11 @@ export interface FolderStats {
 
     space: string;
 }
+
+export function createEmptyFolderStats() {
+    return {
+        fileCount: "",
+        folderCount: "",
+        space: "",
+    }
+}

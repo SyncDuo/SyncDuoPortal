@@ -49,9 +49,9 @@
             <HddOutlined /> {{ syncFlowInfo.destFolderStats.space}} MB
           </template>
         </a-card>
-        <a-card size="small" style="text-align: left;" title="Ignore">
+        <a-card size="small" style="text-align: left;" title="FilterCriteria">
           <template #extra>
-            {{ syncFlowInfo.ignorePatten }}
+            {{ syncFlowInfo.filterCriteria }}
           </template>
         </a-card>
         <a-card size="small" style="text-align: left;" title="LastSyncTime">
@@ -77,8 +77,8 @@
             {{ SyncFlowStatus.RESCAN }}
           </a-button>
           <a-button class="edit_button"
-                    @click=""
-                    disabled>
+                    @click="handleSyncFlowEditButton(syncFlowInfo.syncFlowId)"
+                    :disabled="editButtonDisable(syncFlowInfo)">
             <EditOutlined/>
             EDIT
           </a-button>
@@ -106,16 +106,19 @@
         <PlusOutlined/>
         ADD
       </a-button>
-      <!-- Use the ModalComponent -->
-      <sync-flow-modal ref="syncflowModal" @syncFlowCreated="getSyncFlowInfoList"/>
     </div>
   </div>
+
+  <!-- Use the ModalComponent -->
+  <sync-flow-create-modal ref="syncFlowCreateModal" @syncFlowCreated="getSyncFlowInfoList"/>
+  <sync-flow-update-modal ref="syncFlowUpdateModal" @syncFlowUpdated="getSyncFlowInfoList"/>
 </template>
 
 <script setup lang="ts">
 import {changeAllSyncFlowStatus, changeSyncFlowStatus, getAllSyncFlowInfo} from '../../api/api';
 import {SyncFlowInfo, SyncFlowStatus} from "../../api/SyncFlowDataType";
-import SyncFlowModal from "./SyncFlowModal.vue";
+import SyncFlowCreateModal from "./SyncFlowCreateModal.vue";
+import SyncFlowUpdateModal from "./SyncFlowUpdateModal.vue";
 import {
   EditOutlined,
   FileOutlined,
@@ -135,6 +138,13 @@ import {useGlobalTimerStore} from "../../store/timer";
 const timer = useGlobalTimerStore();
 // 折叠面板选中的 key
 const activeKey:Ref<string[]> = ref([]);
+// edit 按钮是否可用的函数
+const editButtonDisable = (syncFlowInfo: SyncFlowInfo): boolean => {
+  if (syncFlowInfo === null || syncFlowInfo === undefined) {
+    return true;
+  }
+  return syncFlowInfo.syncStatus !== SyncFlowStatus.PAUSE;
+}
 // 定义 syncFlowInfoList
 let syncFlowInfoList:Ref<SyncFlowInfo[]> = ref([]);
 // 请求 syncflow 数据的函数
@@ -146,13 +156,21 @@ const getSyncFlowInfoList = async () => {
   syncFlowInfoList.value = syncFlowInfoTmp;
 }
 // 定义 syncFlowModal 的 ref, 用于访问其方法和变量
-const syncflowModal:Ref<InstanceType<typeof SyncFlowModal | null>> = ref(null);
+const syncFlowCreateModal:Ref<InstanceType<typeof SyncFlowCreateModal | null>> = ref(null);
+const syncFlowUpdateModal:Ref<InstanceType<typeof SyncFlowUpdateModal | null>> = ref(null);
 // sync flow 菜单添加按钮事件, 展示 modal
 const handleSyncFlowAddButton = () => {
-  if (syncflowModal === null || syncflowModal === undefined) {
-    console.error("childModalRef not initialized");
+  if (syncFlowCreateModal === null || syncFlowCreateModal === undefined) {
+    console.error("syncFlowCreateModal not initialized");
   }
-  syncflowModal.value.showModal();
+  syncFlowCreateModal.value.showCreateSyncflowModal();
+};
+// sync flow 编辑按钮事件, 展示 modal
+const handleSyncFlowEditButton = (syncFlowId: string) => {
+  if (syncFlowUpdateModal === null || syncFlowUpdateModal === undefined) {
+    console.error("syncFlowUpdateModal not initialized");
+  }
+  syncFlowUpdateModal.value.showUpdateSyncflowModal(syncFlowId);
 };
 // 改变syncflow状态的函数
 const changeSyncFlowStatusFunc = async (syncFlowId:string, syncFlowStatus:SyncFlowStatus) => {

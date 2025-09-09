@@ -1,4 +1,4 @@
-import { FolderStats } from "./GlobalDataType";
+import {createEmptyFolderStats, FolderStats} from "./GlobalDataType";
 
 export interface SystemInfo {
 
@@ -49,11 +49,7 @@ export function createEmptySystemInfo():SystemInfo {
     return {
         syncFlowNumber: 0,
         fileCopyRate: "",
-        folderStats: {
-            fileCount: "",
-            folderCount: "",
-            space: "",
-        },
+        folderStats: createEmptyFolderStats(),
         watchers: 0,
         uptime: ""
     }

@@ -31,7 +31,7 @@
 
       <a-tab-pane key="advance" tab="Advance">
         <a-form class="input-group">
-          <a-form-item label="Filter" class="form-item">
+          <a-form-item label="Filter Criteria" class="form-item">
             <a-input v-model:value="form.filterCriteria"/>
           </a-form-item>
         </a-form>
@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import {addSyncFlow, updateFilterCriteria} from '../../api/api'
+import {addSyncFlow} from '../../api/api'
 import {ref, Ref} from 'vue';
 import {CreateSyncFlowRequest} from "../../api/SyncFlowDataType";
 import SearchBar from "../../components/SearchPathInput.vue";
@@ -64,7 +64,7 @@ const initCreateSyncFlowRequest = ():CreateSyncFlowRequest => {
     filterCriteria: "[]",
     syncFlowName: ""
   }
-}
+};
 // modal 填写的数据
 const form:Ref<CreateSyncFlowRequest> = ref(initCreateSyncFlowRequest());
 // syncflow 创建完成后, 发送事件
@@ -76,13 +76,6 @@ const createSyncFlow = async (payload:CreateSyncFlowRequest) => {
   await addSyncFlow(payload);
   emit('syncFlowCreated');
 };
-// 改变 syncflow filter criteria 的函数
-const updateFilterCriteriaFunc = async (filterCriteria:string) => {
-  if (filterCriteria === null || filterCriteria === undefined || filterCriteria.trim() === "") {
-    return;
-  }
-  await updateFilterCriteria(filterCriteria);
-}
 // modal 正确关闭的事件逻辑
 const handleOk = () => {
   // 拼接 destFolderFullPath
@@ -101,9 +94,9 @@ const handleCancel = () => {
 // 定义需要暴露的方法
 defineExpose({
   // 控制 modal 显示隐藏的方法
-  showModal: () => {
+  showCreateSyncflowModal: () => {
     isModalVisible.value = true;
-  }
+  },
 });
 </script>
 

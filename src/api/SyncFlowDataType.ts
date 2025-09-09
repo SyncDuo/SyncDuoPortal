@@ -1,4 +1,4 @@
-import { FolderStats } from "./GlobalDataType";
+import {createEmptyFolderStats, FolderStats} from "./GlobalDataType";
 
 export interface CreateSyncFlowRequest {
 
@@ -17,8 +17,10 @@ export interface ChangeSyncFlowStatusRequest {
     syncFlowStatus : SyncFlowStatus;
 }
 
-export interface ManualBackupRequest {
+export interface UpdateFilterCriteriaRequest {
     syncFlowId : string;
+
+    filterCriteria: string;
 }
 
 export interface SyncFlowInfo {
@@ -31,9 +33,9 @@ export interface SyncFlowInfo {
 
     destFolderPath : string;
 
-    ignorePatten: string;
+    filterCriteria: string;
 
-    destFolderStats: FolderStats | null;
+    destFolderStats: FolderStats;
 
     syncStatus: SyncFlowStatus;
 
@@ -46,4 +48,18 @@ export enum SyncFlowStatus {
     PAUSE = "PAUSE",
     RESUME = "RESUME",
     RESCAN = "RESCAN",
+    UNKNOWN = "UNKNOWN",
+}
+
+export function createEmptySyncFlowInfo(): SyncFlowInfo {
+    return {
+        syncFlowId: "",
+        syncFlowName: "",
+        sourceFolderPath: "",
+        destFolderPath: "",
+        filterCriteria: "",
+        destFolderStats: createEmptyFolderStats(),
+        syncStatus: SyncFlowStatus.UNKNOWN,
+        lastSyncTimeStamp: "",
+    }
 }

@@ -2,12 +2,12 @@ import blobAxiosInstance, {restAxiosInstance} from "../util/http";
 import {
     CreateSyncFlowRequest,
     ChangeSyncFlowStatusRequest,
-    ManualBackupRequest, SyncFlowInfo
+    SyncFlowInfo, UpdateFilterCriteriaRequest
 } from "./SyncFlowDataType"
 import {SystemInfo, SystemSettings} from "./SystemInfoDataType";
 import {SyncDuoHttpResponse} from "./GlobalDataType";
 import {AxiosResponse} from "axios";
-import {SnapshotFileInfo, SyncFlowWithSnapshots} from "./SnapshotsDataType";
+import {SnapshotFileInfo, SyncFlowWithSnapshots, ManualBackupRequest} from "./SnapshotsDataType";
 import {Folder} from "./FileSystemAccessDataType";
 
 const syncFlowUrl : string = "/sync-flow";
@@ -21,6 +21,17 @@ const snapshotsUrl : string = "/snapshots";
 export async function addSyncFlow(payload:CreateSyncFlowRequest): Promise<SyncFlowInfo> {
     const response =
         await restAxiosInstance.post<SyncDuoHttpResponse<SyncFlowInfo>>(syncFlowUrl + "/add-sync-flow", payload);
+    return response.data.data;
+}
+
+export async function getSyncFlowInfo(syncFlowIdString: string):Promise<SyncFlowInfo> {
+    const response = await restAxiosInstance.get<SyncDuoHttpResponse<SyncFlowInfo>>(
+        syncFlowUrl + "/get-sync-flow-info",
+        {
+            params: {
+                syncFlowIdString: syncFlowIdString,
+            }
+        });
     return response.data.data;
 }
 
@@ -44,7 +55,7 @@ export async function changeAllSyncFlowStatus(payload:ChangeSyncFlowStatusReques
     );
 }
 
-export async function updateFilterCriteria(payload: string) {
+export async function updateFilterCriteria(payload: UpdateFilterCriteriaRequest) {
     await restAxiosInstance.post<null>(
         syncFlowUrl + "/update-filter-criteria",
         payload

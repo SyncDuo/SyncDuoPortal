@@ -32,8 +32,7 @@ export default restAxiosInstance;
 function globalErrorResponseInterceptor(error: AxiosError):Promise<Error> {
     // 超出 2xx 范围的状态码（如4xx, 5xx）或网络错误等都会触发该函数
     // 对响应错误做点什么，这是统一错误处理的核心
-
-    let errorMessage = '网络请求失败';
+    let errorMessage: string;
     let httpStatus = null;
     let businessCode = null;
 
