@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import {getSystemInfo} from '../../api/api';
-import {SystemInfo} from "../../api/SystemInfoDataType.js";
+import {createEmptySystemInfo, SystemInfo} from "../../api/SystemInfoDataType.js";
 import {FileOutlined, FolderOutlined, HddOutlined, RetweetOutlined} from '@ant-design/icons-vue';
 import {onMounted, onUnmounted, Ref, ref} from 'vue';
 import {useGlobalTimerStore} from "../../store/timer";
@@ -52,22 +52,12 @@ import {useGlobalTimerStore} from "../../store/timer";
 // 使用全局定时器
 const timer = useGlobalTimerStore();
 // 定义 systemInfoResponse
-const systemInfo:Ref<SystemInfo> = ref({
-  hostName: "",
-  syncFlowNumber: 0,
-  fileCopyRate: "",
-  folderStats: {
-    fileCount: "",
-    folderCount: "",
-    space: "",
-  },
-  watchers: 0,
-  uptime: ""
-});
+const systemInfo:Ref<SystemInfo> = ref(createEmptySystemInfo());
 // 请求 systemInfoResponse 数据的函数
 const getSystemInfoFunc = async () => {
   const systemInfoTmp = await getSystemInfo();
   if (systemInfoTmp === null || systemInfoTmp === undefined) {
+    systemInfo.value = createEmptySystemInfo();
     return;
   }
   // 直接赋值，因为结构完全一致

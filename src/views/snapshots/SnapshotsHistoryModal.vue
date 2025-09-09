@@ -96,7 +96,6 @@
           <iframe
               v-else-if="previewFileType === 'pdf' && previewUrl"
               :src="previewUrl"
-              frameborder="0"
               class="preview-pdf"
           ></iframe>
 
@@ -131,7 +130,6 @@ import {SyncDuoHttpResponse} from "../../api/GlobalDataType";
 const isModalVisible:Ref<boolean> = ref(false);
 // modal 传入的 snapshotId
 const backupJobId:Ref<string> = ref<string>("");
-
 // 表格列定义
 const columns = [
   {

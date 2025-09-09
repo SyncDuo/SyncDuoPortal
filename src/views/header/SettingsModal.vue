@@ -11,10 +11,10 @@
       <a-tab-pane key="system" tab="System">
         <a-form class="input-group" layout="vertical">
           <a-form-item label="Folder Watcher Interval(Sec)" class="form-item">
-            <a-input v-model:value="form.system.folderWatcherIntervalMillis" />
+            <a-input v-model:value="form.system.folderWatcherIntervalMillis" disabled />
           </a-form-item>
           <a-form-item label="Check Syncflow Status Interval(Sec)" class="form-item">
-            <a-input v-model:value="form.system.checkSyncflowStatusIntervalMillis" />
+            <a-input v-model:value="form.system.checkSyncflowStatusIntervalMillis" disabled />
           </a-form-item>
         </a-form>
       </a-tab-pane>
@@ -23,7 +23,7 @@
       <a-tab-pane key="rclone" tab="Rclone">
         <a-form class="input-group" layout="vertical">
           <a-form-item label="Http Base Url" class="form-item">
-            <a-input v-model:value="form.rclone.httpBaseUrl" />
+            <a-input v-model:value="form.rclone.httpBaseUrl" disabled />
           </a-form-item>
         </a-form>
       </a-tab-pane>
@@ -32,16 +32,16 @@
       <a-tab-pane key="restic" tab="Restic">
         <a-form class="input-group" layout="vertical">
           <a-form-item label="Backup Path" class="form-item">
-            <a-input v-model:value="form.restic.backupPath" />
+            <a-input v-model:value="form.restic.backupPath" disabled />
           </a-form-item>
           <a-form-item label="Backup Interval(Sec)" class="form-item">
-            <a-input v-model:value="form.restic.backupIntervalSec" />
+            <a-input v-model:value="form.restic.backupIntervalSec" disabled />
           </a-form-item>
           <a-form-item label="Restore Path" class="form-item">
-            <a-input v-model:value="form.restic.restorePath" />
+            <a-input v-model:value="form.restic.restorePath" disabled />
           </a-form-item>
           <a-form-item label="Restore Age(Sec)" class="form-item">
-            <a-input v-model:value="form.restic.restoreAgeSec" />
+            <a-input v-model:value="form.restic.restoreAgeSec" disabled />
           </a-form-item>
         </a-form>
       </a-tab-pane>
@@ -52,33 +52,19 @@
 <script setup lang="ts">
 import { getSystemSettings } from '../../api/api';
 import {ref, Ref, watch} from 'vue';
-import {SystemSettings} from "../../api/SystemInfoDataType";
+import {createEmptySystemSettings, SystemSettings} from "../../api/SystemInfoDataType";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
 // 活动 tab 页的变量
 const activeTab:Ref<string> = ref("system");
 // 表单变量
-const form:Ref<SystemSettings> = ref({
-  system: {
-    folderWatcherIntervalMillis: "",
-    checkSyncflowStatusIntervalMillis: "",
-  },
-  rclone: {
-    httpBaseUrl: "",
-  },
-  restic: {
-    backupPath: "",
-    backupIntervalSec: "",
-    restorePath: "",
-    restoreAgeSec: "",
-  }
-});
+const form:Ref<SystemSettings> = ref(createEmptySystemSettings());
 // 获取 system settings 的函数
 const getSystemSettingsAndConvert = async () => {
   const systemSettings = await getSystemSettings();
-  console.log("system settings", systemSettings);
   if (systemSettings === null || systemSettings === undefined) {
+    form.value = createEmptySystemSettings();
     return;
   }
   form.value = systemSettings;
@@ -87,7 +73,6 @@ const getSystemSettingsAndConvert = async () => {
       systemSettings.system.folderWatcherIntervalMillis.slice(0, -3);
   form.value.system.checkSyncflowStatusIntervalMillis =
       systemSettings.system.checkSyncflowStatusIntervalMillis.slice(0, -3);
-  console.log("form value", form.value);
 }
 // 页面加载的时候请求一次 systemConfig, 初始化数据
 watch(isModalVisible, async (newVal) => {

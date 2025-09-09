@@ -48,7 +48,8 @@ const timer = useGlobalTimerStore();
 let hostName:Ref<string> = ref('');
 const getHostNameFunc = async () => {
   const hostNameString = await getHostName();
-  if (hostNameString === null || hostName === undefined) {
+  if (hostNameString === null || hostNameString === undefined) {
+    hostName.value = "";
     return;
   }
   hostName.value = hostNameString;

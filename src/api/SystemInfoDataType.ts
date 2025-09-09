@@ -2,8 +2,6 @@ import { FolderStats } from "./GlobalDataType";
 
 export interface SystemInfo {
 
-    hostName: string;
-
     syncFlowNumber: number;
 
     fileCopyRate: string;
@@ -45,5 +43,37 @@ export interface Restic {
     restorePath: string;
 
     restoreAgeSec: string;
+}
+
+export function createEmptySystemInfo():SystemInfo {
+    return {
+        syncFlowNumber: 0,
+        fileCopyRate: "",
+        folderStats: {
+            fileCount: "",
+            folderCount: "",
+            space: "",
+        },
+        watchers: 0,
+        uptime: ""
+    }
+}
+
+export function createEmptySystemSettings():SystemSettings {
+    return {
+        system: {
+            folderWatcherIntervalMillis: "",
+            checkSyncflowStatusIntervalMillis: "",
+        },
+        rclone: {
+            httpBaseUrl: "",
+        },
+        restic: {
+            backupPath: "",
+            backupIntervalSec: "",
+            restorePath: "",
+            restoreAgeSec: "",
+        }
+    }
 }
 
