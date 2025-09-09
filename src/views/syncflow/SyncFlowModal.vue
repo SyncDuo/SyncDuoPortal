@@ -14,7 +14,7 @@
             <search-bar v-model="form.sourceFolderFullPath" />
           </a-form-item>
         </a-form>
-        <a-form class="input-group" layout="vertical" :disabled="inputDisabled">
+        <a-form class="input-group" layout="vertical">
           <a-form-item label="Dest Folder" class="form-item" >
             <a-input-group compact>
               <search-bar v-model="destParentFolderFullPath" style="width: 80%"/>
@@ -30,7 +30,7 @@
       </a-tab-pane>
 
       <a-tab-pane key="advance" tab="Advance">
-        <a-form class="input-group" :disabled="inputDisabled">
+        <a-form class="input-group">
           <a-form-item label="Filter" class="form-item">
             <a-input v-model:value="form.filterCriteria"/>
           </a-form-item>
@@ -41,9 +41,9 @@
 </template>
 
 <script setup lang="ts">
-import {postSyncFlow} from '../../api/api'
+import {addSyncFlow} from '../../api/api'
 import {ref, Ref} from 'vue';
-import {CreateSyncFlowRequest, SyncFlowResponse} from "../../api/SyncFlowDataType";
+import {CreateSyncFlowRequest} from "../../api/SyncFlowDataType";
 import SearchBar from "../../components/SearchPathInput.vue";
 
 // modal 是否打开的变量
@@ -53,8 +53,6 @@ const activeTab:Ref<string> = ref("basic");
 // 创建 destParentFolderFullPath 和 destFolderName, 用于最后拼接为 destFolderName
 const destParentFolderFullPath:Ref<string> = ref("");
 const destFolderName:Ref<string> = ref("");
-// disabled 变量, 用于控制哪些输入框是禁选
-const inputDisabled:Ref<boolean> = ref(false);
 // CreateSyncFlowRequest 初始化函数
 const initCreateSyncFlowRequest = ():CreateSyncFlowRequest => {
   // destParentFolderFullPath 和 destFolderName 也需要清空
@@ -75,20 +73,11 @@ const emit = defineEmits<{
 }>();
 // 提交数据的函数
 const createSyncFlow = async (payload:CreateSyncFlowRequest) => {
-  const syncFlowResponse:SyncFlowResponse = await postSyncFlow(payload);
-  if (syncFlowResponse === null || form.value === null) {
-    console.error('SyncFlow Create failed!');
-  }
-  if (syncFlowResponse.code === 500) {
-    console.error('SyncFlow failed. ' + syncFlowResponse.message);
-  }
-  if (syncFlowResponse.code === 200) {
-    emit('syncFlowCreated');
-  }
+  await addSyncFlow(payload);
+  emit('syncFlowCreated');
 }
 // modal 正确关闭的事件逻辑
 const handleOk = () => {
-  console.log(form.value)
   // 拼接 destFolderFullPath
   form.value.destFolderFullPath = destParentFolderFullPath.value + "/" + destFolderName.value;
   // 发起创建 syncFlow 请求

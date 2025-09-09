@@ -33,14 +33,8 @@
             <template v-if="column.key === 'name'">
               <div class="file-name-cell">
                 <file-outlined v-if="record.type === 'file'" class="file-icon" />
-                <folder-outlined
-                    v-if="record.type === 'dir'"
-                    class="folder-icon"
-                />
-                <a
-                    v-if="record.type === 'dir'"
-                    @click="openDirectory(record.fileName)"
-                >
+                <folder-outlined v-if="record.type === 'dir'" class="folder-icon"/>
+                <a v-if="record.type === 'dir'" @click="openDirectory(record.fileName)">
                   {{ record.fileName }}
                 </a>
                 <span v-else>{{ record.fileName }}</span>
@@ -53,14 +47,18 @@
               {{ record.lastModifiedTime }}
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button
-                  v-if="record.type === 'file'"
-                  type="primary"
-                  size="small"
-                  @click="previewFile(record)"
-              >
-                预览
-              </a-button>
+              <a-space>
+                <a-button
+                    v-if="record.type === 'file'"
+                    type="primary"
+                    size="small"
+                    @click="previewFile(record)"
+                >
+                  预览
+                </a-button>
+
+                <a-button type="primary" size="small" @click="downloadFile(record)">下载</a-button>
+              </a-space>
             </template>
           </template>
         </a-table>
@@ -109,7 +107,6 @@
           >
             <file-unknown-outlined class="preview-icon" />
             <p>不支持预览此文件类型</p>
-            <a-button type="primary" @click="downloadFile">下载文件</a-button>
           </div>
 
           <!-- 加载状态 -->
@@ -127,7 +124,8 @@
 import {ref, Ref} from "vue";
 import {FileOutlined, FileUnknownOutlined, FolderOutlined,} from "@ant-design/icons-vue";
 import {SnapshotFileInfo} from "../../api/SnapshotsDataType";
-import {getSnapshotFiles} from "../../api/api";
+import {downloadSnapshotFile, downloadSnapshotFiles, getSnapshotFileInfo} from "../../api/api";
+import {SyncDuoHttpResponse} from "../../api/GlobalDataType";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
@@ -183,7 +181,7 @@ const fetchFiles = async () => {
       console.error("backupJobId must be specified!");
       return;
     }
-    fileList.value = (await getSnapshotFiles(backupJobId.value, currentPath.value)).dataList;
+    fileList.value = await getSnapshotFileInfo(backupJobId.value, currentPath.value);
   } catch (error) {
     console.error("获取文件列表失败:", error);
   } finally {
@@ -262,8 +260,16 @@ const previewFile = (file: SnapshotFileInfo) => {
 };
 
 // 下载文件
-const downloadFile = () => {
-  alert("在实际应用中，这里会触发文件下载");
+const downloadFile = async (snapshotFileInfo:SnapshotFileInfo) => {
+  let syncDuoHttpResponse: SyncDuoHttpResponse;
+  if (snapshotFileInfo.type === "file") {
+    syncDuoHttpResponse = await downloadSnapshotFile(snapshotFileInfo);
+  } else {
+    syncDuoHttpResponse = await downloadSnapshotFiles([snapshotFileInfo]);
+  }
+  if (syncDuoHttpResponse != null) {
+    console.error("download file failed. ex: " + syncDuoHttpResponse.message);
+  }
 };
 
 // 定义需要暴露的方法

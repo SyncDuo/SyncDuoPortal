@@ -8,34 +8,35 @@
     </div>
 
     <div class="system_info">
-      <a-card :title="systemInfoResponse?.hostName" style="text-align: left">
-        <a-card size="small" style="text-align: left;" title="syncFlowNumber">
-          <template #extra>
-            {{ systemInfoResponse.syncFlowNumber }}
-          </template>
-        </a-card>
-        <a-card size="small" style="text-align: left;" title="fileCopyRate">
-          <template #extra>
-            {{ systemInfoResponse.fileCopyRate }} MB/s
-          </template>
-        </a-card>
-        <a-card size="small" style="text-align: left;" title="folderStats">
-          <template #extra>
-            <FileOutlined /> {{ systemInfoResponse.folderStats?.fileCount }}
-            <FolderOutlined /> {{ systemInfoResponse.folderStats?.folderCount }}
-            <HddOutlined /> {{ systemInfoResponse.folderStats?.space }} MB
-          </template>
-        </a-card>
-        <a-card size="small" style="text-align: left;" title="watchers">
-          <template #extra>
-            {{ systemInfoResponse.watchers }}
-          </template>
-        </a-card>
-        <a-card size="small" style="text-align: left;" title="uptime">
-          <template #extra>
-            {{ systemInfoResponse.uptime }}
-          </template>
-        </a-card>
+      <a-card size="small" class="system_info_card" title="SyncFlowNumber">
+        <template #extra>
+          {{ systemInfo.syncFlowNumber }}
+        </template>
+      </a-card>
+      <a-card size="small" class="system_info_card" title="FileCopyRate">
+        <template #extra>
+          {{ systemInfo.fileCopyRate }} MB/s
+        </template>
+      </a-card>
+      <a-card size="small" class="system_info_card" title="FolderStats">
+        <template #extra>
+          <FileOutlined />
+          {{ systemInfo.folderStats.fileCount }}
+          <FolderOutlined />
+          {{ systemInfo.folderStats.folderCount }}
+          <HddOutlined />
+          {{ systemInfo.folderStats.space }} MB
+        </template>
+      </a-card>
+      <a-card size="small" class="system_info_card" title="Watchers">
+        <template #extra>
+          {{ systemInfo.watchers }}
+        </template>
+      </a-card>
+      <a-card size="small" class="system_info_card" title="Uptime">
+        <template #extra>
+          {{ systemInfo.uptime }}
+        </template>
       </a-card>
     </div>
   </div>
@@ -43,44 +44,41 @@
 
 <script setup lang="ts">
 import {getSystemInfo} from '../../api/api';
-import {SystemInfoResponse} from "../../api/SystemInfoDataType.js";
-import {FolderOutlined, FileOutlined, HddOutlined, RetweetOutlined} from '@ant-design/icons-vue';
+import {SystemInfo} from "../../api/SystemInfoDataType.js";
+import {FileOutlined, FolderOutlined, HddOutlined, RetweetOutlined} from '@ant-design/icons-vue';
 import {onMounted, onUnmounted, Ref, ref} from 'vue';
 import {useGlobalTimerStore} from "../../store/timer";
 
 // 使用全局定时器
 const timer = useGlobalTimerStore();
 // 定义 systemInfoResponse
-let systemInfoResponse:Ref<SystemInfoResponse> = ref({
-  code: null,
-  message: '',
-  hostName: 'not available',
-  syncFlowNumber: null,
-  fileCopyRate: '',
-  folderStats: null,
-  watchers: null,
-  uptime: ''
+const systemInfo:Ref<SystemInfo> = ref({
+  hostName: "",
+  syncFlowNumber: 0,
+  fileCopyRate: "",
+  folderStats: {
+    fileCount: "",
+    folderCount: "",
+    space: "",
+  },
+  watchers: 0,
+  uptime: ""
 });
 // 请求 systemInfoResponse 数据的函数
 const getSystemInfoFunc = async () => {
-  systemInfoResponse.value = {
-    code: null,
-    message: '',
-    hostName: 'not available',
-    syncFlowNumber: null,
-    fileCopyRate: '',
-    folderStats: null,
-    watchers: null,
-    uptime: ''
+  const systemInfoTmp = await getSystemInfo();
+  if (systemInfoTmp === null || systemInfoTmp === undefined) {
+    return;
   }
-  const result:SystemInfoResponse = await getSystemInfo();
-  if (result === null) {
-    console.log("get systemInfo failed");
-  } else if (result.code === 500) {
-    console.log("get systemInfo failed. " + result.message);
-  } else {
-    systemInfoResponse.value = result;
-  }
+  // 直接赋值，因为结构完全一致
+  systemInfo.value = {
+    ...systemInfo.value,
+    ...systemInfoTmp,
+    folderStats: {
+      ...systemInfo.value.folderStats,
+      ...systemInfoTmp.folderStats
+    }
+  };
 };
 // 页面加载的时候获取 system 数据渲染
 onMounted(() => {
@@ -115,5 +113,10 @@ onUnmounted(() => {
 
 .system_info {
   width: 580px;
+}
+
+.system_info_card {
+  text-align: left;
+  font-size: 20px;
 }
 </style>

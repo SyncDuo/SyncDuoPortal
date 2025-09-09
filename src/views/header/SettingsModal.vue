@@ -2,22 +2,46 @@
   <a-modal
       v-model:open="isModalVisible"
       title="System Config"
-      @ok="handleOk"
-      @cancel="() => isModalVisible = false"
+      @ok="() => isModalVisible = false"
       @close="() => isModalVisible = false"
       width="1000px"
   >
     <a-tabs v-model:value="activeTab" type="card">
-      <a-tab-pane key="general" tab="General">
+      <!-- system settings -->
+      <a-tab-pane key="system" tab="System">
         <a-form class="input-group" layout="vertical">
-          <a-form-item label="Backup Storage Path" class="form-item">
-            <search-bar v-model:value="form.backupStoragePath" />
+          <a-form-item label="Folder Watcher Interval(Sec)" class="form-item">
+            <a-input v-model:value="form.system.folderWatcherIntervalMillis" />
           </a-form-item>
-          <a-form-item label="Backup Interval Millis" class="form-item">
-            <a-input v-model:value="form.backupIntervalMillis" />
+          <a-form-item label="Check Syncflow Status Interval(Sec)" class="form-item">
+            <a-input v-model:value="form.system.checkSyncflowStatusIntervalMillis" />
           </a-form-item>
-          <a-form-item label="Backup Password" class="form-item">
-            <a-input-password v-model:value="form.backupPassword" />
+        </a-form>
+      </a-tab-pane>
+
+      <!-- rclone settings -->
+      <a-tab-pane key="rclone" tab="Rclone">
+        <a-form class="input-group" layout="vertical">
+          <a-form-item label="Http Base Url" class="form-item">
+            <a-input v-model:value="form.rclone.httpBaseUrl" />
+          </a-form-item>
+        </a-form>
+      </a-tab-pane>
+
+      <!-- restic settings -->
+      <a-tab-pane key="restic" tab="Restic">
+        <a-form class="input-group" layout="vertical">
+          <a-form-item label="Backup Path" class="form-item">
+            <a-input v-model:value="form.restic.backupPath" />
+          </a-form-item>
+          <a-form-item label="Backup Interval(Sec)" class="form-item">
+            <a-input v-model:value="form.restic.backupIntervalSec" />
+          </a-form-item>
+          <a-form-item label="Restore Path" class="form-item">
+            <a-input v-model:value="form.restic.restorePath" />
+          </a-form-item>
+          <a-form-item label="Restore Age(Sec)" class="form-item">
+            <a-input v-model:value="form.restic.restoreAgeSec" />
           </a-form-item>
         </a-form>
       </a-tab-pane>
@@ -26,87 +50,49 @@
 </template>
 
 <script setup lang="ts">
-import {createSystemConfig, getSystemConfig, updateSystemConfig} from '../../api/api';
+import { getSystemSettings } from '../../api/api';
 import {ref, Ref, watch} from 'vue';
-import SearchBar from "../../components/SearchPathInput.vue";
-import {SystemConfigEntity, SystemConfigResponse} from "../../api/SystemConfigDataType";
-import {loadPublicKey} from '../../util/rsa';
-import JSEncrypt from 'jsencrypt';
+import {SystemSettings} from "../../api/SystemInfoDataType";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
 // 活动 tab 页的变量
-const activeTab:Ref<string> = ref("general");
-// 定义 systemConfig 初始化函数
-const getEmptySystemConfig = ():SystemConfigEntity => {
-  return {
-    systemConfigId: null,
-    backupStoragePath: "",
-    backupIntervalMillis: 4 * 3600000, // default 4 hours
-    backupPassword: ""
+const activeTab:Ref<string> = ref("system");
+// 表单变量
+const form:Ref<SystemSettings> = ref({
+  system: {
+    folderWatcherIntervalMillis: "",
+    checkSyncflowStatusIntervalMillis: "",
+  },
+  rclone: {
+    httpBaseUrl: "",
+  },
+  restic: {
+    backupPath: "",
+    backupIntervalSec: "",
+    restorePath: "",
+    restoreAgeSec: "",
   }
-};
-// 定义 systemConfig
-const form:Ref<SystemConfigEntity> = ref<SystemConfigEntity>(getEmptySystemConfig());
-// systemConfig 初始化函数
-const initSystemConfig = async () => {
-  const systemConfigResponse = await getSystemConfig();
-  if (systemConfigResponse === null) {
-    console.error("get systemConfig failed");
-  } else if (systemConfigResponse.code === 500) {
-    console.error("get systemConfig failed. " + systemConfigResponse.message);
-  } else if (systemConfigResponse.code === 200 && systemConfigResponse.systemConfigEntity !== null) {
-    // 第一次登录系统,没有设置参数,所以 form 需要设置为空对象, 而不是 null
-    form.value = systemConfigResponse.systemConfigEntity;
+});
+// 获取 system settings 的函数
+const getSystemSettingsAndConvert = async () => {
+  const systemSettings = await getSystemSettings();
+  console.log("system settings", systemSettings);
+  if (systemSettings === null || systemSettings === undefined) {
+    return;
   }
-};
-// 更新 systemConfig 函数
-const createOrUpdateSystemConfig = async (payload:SystemConfigEntity) => {
-  let systemConfigResponse: SystemConfigResponse;
-  if (payload.systemConfigId === null) {
-    // 如果 id 为空, 则创建 system config
-    systemConfigResponse = await createSystemConfig(payload);
-  } else {
-    // 否则更新 systemConfigResponse
-    systemConfigResponse = await updateSystemConfig(payload);
-  }
-  if (systemConfigResponse === null) {
-    console.error("update systemConfig failed");
-  } else if (systemConfigResponse.code === 500) {
-    console.error("update systemConfig failed. " + systemConfigResponse.message);
-  } else {
-    return systemConfigResponse.systemConfigEntity;
-  }
-};
-// backup password 加密函数
-const encryptRsa = async (rawPassword:string) => {
-  const encryptor = new JSEncrypt();
-  const publicKey = await loadPublicKey();
-  encryptor.setPublicKey(publicKey);
-  const encryptResult = encryptor.encrypt(rawPassword);
-  if (!encryptResult) {
-    console.error("encrypt failed!");
-  } else {
-    return encryptResult;
-  }
+  form.value = systemSettings;
+  // millis to second
+  form.value.system.folderWatcherIntervalMillis =
+      systemSettings.system.folderWatcherIntervalMillis.slice(0, -3);
+  form.value.system.checkSyncflowStatusIntervalMillis =
+      systemSettings.system.checkSyncflowStatusIntervalMillis.slice(0, -3);
+  console.log("form value", form.value);
 }
-// modal 正确关闭的事件逻辑
-const handleOk = async () => {
-  console.log(form.value);
-  const encryptResult = await encryptRsa(form.value.backupPassword);
-  if (!encryptResult) {
-    console.error("handleOk failed!");
-    form.value = getEmptySystemConfig();
-  } else {
-    form.value.backupPassword = encryptResult;
-    form.value = await createOrUpdateSystemConfig(form.value);
-  }
-  isModalVisible.value = false;
-};
 // 页面加载的时候请求一次 systemConfig, 初始化数据
-watch(isModalVisible, (newVal) => {
+watch(isModalVisible, async (newVal) => {
   if (newVal === true) {
-    initSystemConfig();
+    await getSystemSettingsAndConvert();
   }
 });
 // 定义需要暴露的方法

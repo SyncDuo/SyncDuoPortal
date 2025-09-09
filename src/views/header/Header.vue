@@ -47,19 +47,11 @@ const timer = useGlobalTimerStore();
 // 获取 hostName 并渲染
 let hostName:Ref<string> = ref('');
 const getHostNameFunc = async () => {
-  const fileSystemResponse = await getHostName();
-  if (fileSystemResponse === null) {
-    console.error("getHostName() is null");
-    hostName.value = "Request failed"
-  } else if (fileSystemResponse.code !== 200) {
-    console.error("getHostName() failed. ex message is " + fileSystemResponse.message);
-    hostName.value = "Request failed"
-  } else {
-    if (hostName.value === fileSystemResponse.hostName) {
-      return;
-    }
-    hostName.value = fileSystemResponse.hostName;
+  const hostNameString = await getHostName();
+  if (hostNameString === null || hostName === undefined) {
+    return;
   }
+  hostName.value = hostNameString;
 };
 onMounted(() => {
   timer.registerJob("getHostNameFunc", getHostNameFunc);
@@ -70,10 +62,9 @@ onUnmounted(() => {
 // 定义 SettingsModal 的 ref, 用于访问其方法和变量
 const settingsModalRef = ref<InstanceType<typeof SettingsModal> | null>(null);
 // 下拉菜单的 settings 按钮点击事件, 展示 modal
-const handleSettingsButtonClick = e => {
-  console.log('clickSettingsButton', e);
-  if (!settingsModalRef || !settingsModalRef.value) {
-    console.error('setting modal is not init', e);
+const handleSettingsButtonClick = () => {
+  if (settingsModalRef === null || settingsModalRef === undefined) {
+    console.error('setting modal is not init');
     return;
   }
   settingsModalRef.value.showModal();

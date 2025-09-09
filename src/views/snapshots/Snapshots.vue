@@ -57,8 +57,8 @@
 
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, Ref} from "vue";
-import {SnapshotsResponse, SyncFlowWithSnapshots} from "../../api/SnapshotsDataType";
-import {getSnapshots, manualBackupSyncFlow} from "../../api/api";
+import {SyncFlowWithSnapshots} from "../../api/SnapshotsDataType";
+import {getAllSyncFlowWithSnapshots, manualBackupSyncFlow} from "../../api/api";
 import {
   DeliveredProcedureOutlined,
   RetweetOutlined,
@@ -75,23 +75,21 @@ const timer = useGlobalTimerStore();
 const snapshotsModalRef:Ref<InstanceType<typeof SnapshotsHistoryModal> | null> = ref(null);
 // path button 点击事件, 展示 modal
 const handlePathButtonClick = (backupJobId:string) => {
-  if (snapshotsModalRef.value) {
-    snapshotsModalRef.value.showModal(backupJobId);
+  if (snapshotsModalRef === null || snapshotsModalRef === undefined) {
+    console.error('snapshotsModalRef is not init');
+    return;
   }
+  snapshotsModalRef.value.showModal(backupJobId);
 };
 // 折叠面板需要的变量
 const activeKey:Ref<string[]> = ref([]);
 const syncFlowSnapshotsInfoList:Ref<SyncFlowWithSnapshots[]> = ref([]);
 const getSyncFlowSnapshotsInfoData = async () => {
-  const snapshotsResponse:SnapshotsResponse = await getSnapshots("");
-  if (snapshotsResponse === null || snapshotsResponse.code !== 200) {
-    console.error("Error getting snapshots");
+  const allSyncFlowWithSnapshots = await getAllSyncFlowWithSnapshots();
+  if (allSyncFlowWithSnapshots === null || allSyncFlowWithSnapshots === undefined) {
     return;
   }
-  if (snapshotsResponse.dataList === null) {
-    return;
-  }
-  syncFlowSnapshotsInfoList.value = snapshotsResponse.dataList;
+  syncFlowSnapshotsInfoList.value = allSyncFlowWithSnapshots;
 };
 // 表格需要的变量
 const columns = [
@@ -148,16 +146,7 @@ const manualBackupSyncFlowFunc = async (syncFlowId:string) => {
     console.error('syncFlowId is null!');
     return;
   }
-  const snapshotsResponse = await manualBackupSyncFlow({syncFlowId:syncFlowId});
-  console.log(snapshotsResponse);
-  if (snapshotsResponse === null) {
-    console.error('manual backup sync flow failed. snapshotsResponse is null!');
-    return;
-  }
-  if (snapshotsResponse.code !== 200) {
-    console.error("manual backup sync flow failed!" + snapshotsResponse.message);
-    return;
-  }
+  await manualBackupSyncFlow({syncFlowId:syncFlowId});
   await getSyncFlowSnapshotsInfoData();
 };
 // 页面加载的时候获取全部 syncFlowSnapshotsInfoData

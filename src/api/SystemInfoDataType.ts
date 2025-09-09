@@ -1,8 +1,6 @@
-export interface SystemInfoResponse {
+import { FolderStats } from "./GlobalDataType";
 
-    code: number;
-
-    message: string;
+export interface SystemInfo {
 
     hostName: string;
 
@@ -10,18 +8,42 @@ export interface SystemInfoResponse {
 
     fileCopyRate: string;
 
-    folderStats: FolderStats | null;
+    folderStats: FolderStats;
 
     watchers: number;
 
     uptime: string;
 }
 
-export interface FolderStats {
+export interface SystemSettings {
 
-    fileCount: string;
+    system: System;
 
-    folderCount: string;
+    rclone: Rclone;
 
-    space: string; // MB
+    restic: Restic;
 }
+
+export interface System {
+
+    folderWatcherIntervalMillis: string;
+
+    checkSyncflowStatusIntervalMillis: string;
+}
+
+export interface Rclone {
+
+    httpBaseUrl: string;
+}
+
+export interface Restic {
+
+    backupPath: string;
+
+    backupIntervalSec: string;
+
+    restorePath: string;
+
+    restoreAgeSec: string;
+}
+

@@ -1,3 +1,5 @@
+import { FolderStats } from "./GlobalDataType";
+
 export interface CreateSyncFlowRequest {
 
     sourceFolderFullPath: string;
@@ -19,15 +21,6 @@ export interface ManualBackupRequest {
     syncFlowId : string;
 }
 
-export interface SyncFlowResponse {
-
-    code: number;
-
-    message: string;
-
-    syncFlowInfoList: SyncFlowInfo[] | null;
-}
-
 export interface SyncFlowInfo {
 
     syncFlowId : string;
@@ -45,15 +38,6 @@ export interface SyncFlowInfo {
     syncStatus: SyncFlowStatus;
 
     lastSyncTimeStamp: string;
-}
-
-export interface FolderStats {
-
-    fileCount: string;
-
-    folderCount: string;
-
-    space: string; // MB
 }
 
 export enum SyncFlowStatus {

@@ -1,127 +1,97 @@
-import axiosInstance from "../util/http";
+import blobAxiosInstance, {restAxiosInstance} from "../util/http";
 import {
     CreateSyncFlowRequest,
     ChangeSyncFlowStatusRequest,
-    SyncFlowResponse,
-    ManualBackupRequest
+    ManualBackupRequest, SyncFlowInfo
 } from "./SyncFlowDataType"
-import {FileSystemResponse} from "./FileSystemDataType"
-import {SystemConfigEntity, SystemConfigResponse} from "./SystemConfigDataType";
-import {SystemInfoResponse} from "./SystemInfoDataType";
-import {SnapshotsFileResponse, SnapshotsResponse} from "./SnapshotsDataType";
+import {SystemInfo, SystemSettings} from "./SystemInfoDataType";
+import {SyncDuoHttpResponse} from "./GlobalDataType";
+import {AxiosResponse} from "axios";
+import {SnapshotFileInfo, SyncFlowWithSnapshots} from "./SnapshotsDataType";
+import {Folder} from "./FileSystemAccessDataType";
 
 const syncFlowUrl : string = "/sync-flow";
 
 const fileSystemUrl : string = "/filesystem";
 
-const systemConfigUrl : string = "/system-config";
-
 const systemInfoUrl : string = "/system-info";
 
 const snapshotsUrl : string = "/snapshots";
 
-export async function postSyncFlow(payload:CreateSyncFlowRequest): Promise<SyncFlowResponse> {
+export async function addSyncFlow(payload:CreateSyncFlowRequest): Promise<SyncFlowInfo> {
     const response =
-        await axiosInstance.post<SyncFlowResponse>(syncFlowUrl + "/add-sync-flow", payload);
-    return response.data;
+        await restAxiosInstance.post<SyncDuoHttpResponse<SyncFlowInfo>>(syncFlowUrl + "/add-sync-flow", payload);
+    return response.data.data;
 }
 
-export async function getSyncFlow():Promise<SyncFlowResponse> {
-    const response = await axiosInstance.get<SyncFlowResponse>(
-        syncFlowUrl + "/get-sync-flow");
-    return response.data;
+export async function getAllSyncFlowInfo():Promise<SyncFlowInfo[]> {
+    const response = await restAxiosInstance.get<SyncDuoHttpResponse<SyncFlowInfo[]>>(
+        syncFlowUrl + "/get-all-sync-flow-info");
+    return response.data.data;
 }
 
-export async function changeSyncFlowStatus(payload:ChangeSyncFlowStatusRequest):Promise<SyncFlowResponse> {
-    const response = await axiosInstance.post<SyncFlowResponse>(
+export async function changeSyncFlowStatus(payload:ChangeSyncFlowStatusRequest) {
+    await restAxiosInstance.post<null>(
         syncFlowUrl + "/change-sync-flow-status",
         payload
     );
-    return response.data;
 }
 
-export async function changeAllSyncFlowStatus(payload:ChangeSyncFlowStatusRequest):Promise<SyncFlowResponse> {
-    const response = await axiosInstance.post<SyncFlowResponse>(
+export async function changeAllSyncFlowStatus(payload:ChangeSyncFlowStatusRequest) {
+    await restAxiosInstance.post<null>(
         syncFlowUrl + "/change-all-sync-flow-status",
         payload
     );
-    return response.data;
 }
 
-export async function getHostName():Promise<FileSystemResponse> {
-    const response = await axiosInstance.get<FileSystemResponse>(
+export async function getHostName():Promise<string> {
+    const response = await restAxiosInstance.get<SyncDuoHttpResponse<string>>(
         fileSystemUrl + "/get-hostname");
-    return response.data;
+    return response.data.data;
 }
 
-export async function getFolderName(path:string):Promise<FileSystemResponse> {
-    const response = await axiosInstance.get<FileSystemResponse>(
+export async function getFolderName(path:string):Promise<Folder[]> {
+    const response = await restAxiosInstance.get<SyncDuoHttpResponse<Folder[]>>(
         fileSystemUrl + "/get-subfolders",
         {
             params: {
                 path: path,
             }
         });
-    return response.data;
+    return response.data.data;
 }
 
-export async function getSystemConfig():Promise<SystemConfigResponse> {
-    const response = await axiosInstance.get<SystemConfigResponse>(
-        systemConfigUrl + "/get-system-config"
+export async function getSystemSettings(): Promise<SystemSettings> {
+    const response = await restAxiosInstance.get<SyncDuoHttpResponse<SystemSettings>>(
+        systemInfoUrl + "/get-system-settings"
     );
-    return response.data;
+    console.log("response", response);
+    return response.data.data;
 }
 
-export async function createSystemConfig(payload:SystemConfigEntity):Promise<SystemConfigResponse> {
-    const response = await axiosInstance.post<SystemConfigResponse>(
-        systemConfigUrl + "/create-system-config",
-        payload
-    );
-    return response.data;
-}
-
-export async function updateSystemConfig(payload:SystemConfigEntity):Promise<SystemConfigResponse> {
-    const response = await axiosInstance.post<SystemConfigResponse>(
-        systemConfigUrl + "/update-system-config",
-        payload
-    );
-    return response.data;
-}
-
-export async function getSystemInfo():Promise<SystemInfoResponse> {
-    const response = await axiosInstance.get<SystemInfoResponse>(
+export async function getSystemInfo():Promise<SystemInfo> {
+    const response = await restAxiosInstance.get<SyncDuoHttpResponse<SystemInfo>>(
         systemInfoUrl + "/get-system-info"
     );
-    return response.data;
+    return response.data.data;
 }
 
-export async function manualBackupSyncFlow(payload:ManualBackupRequest):Promise<SnapshotsResponse> {
-    const response = await axiosInstance.post<SnapshotsResponse>(
+export async function manualBackupSyncFlow(payload:ManualBackupRequest) {
+    await restAxiosInstance.post<null>(
         snapshotsUrl + "/backup",
         payload
     );
-    return response.data;
 }
 
-export async function getSnapshots(syncFlowId:string):Promise<SnapshotsResponse> {
-    if (syncFlowId === null || syncFlowId === undefined || syncFlowId === "") {
-        const response = await axiosInstance.get<SnapshotsResponse>(
-            snapshotsUrl + "/get-snapshots");
-        return response.data;
-    } else {
-        const response = await axiosInstance.get<SnapshotsResponse>(
-            snapshotsUrl + "/get-snapshots",
-            {
-                params: {
-                    syncFlowId: syncFlowId,
-                }
-            });
-        return response.data;
-    }
+export async function getAllSyncFlowWithSnapshots():Promise<SyncFlowWithSnapshots[]> {
+    const response = await restAxiosInstance.get<
+        SyncDuoHttpResponse<SyncFlowWithSnapshots[]>>(snapshotsUrl + "/get-all-syncflow-with-snapshots");
+    return response.data.data;
 }
 
-export async function getSnapshotFiles(backupJobId:string, path:string):Promise<SnapshotsFileResponse> {
-    const response = await axiosInstance.get<SnapshotsFileResponse>(
+export async function getSnapshotFileInfo(backupJobId:string, path:string):Promise<SnapshotFileInfo[]> {
+    const response = await restAxiosInstance.get<
+        SyncDuoHttpResponse<SnapshotFileInfo[]>>(
         snapshotsUrl + "/get-snapshot-files",
         {
             params: {
@@ -129,5 +99,76 @@ export async function getSnapshotFiles(backupJobId:string, path:string):Promise<
                 pathString: path
             }
         });
-    return response.data;
+    return response.data.data;
+}
+
+export async function downloadSnapshotFile(snapshotFileInfo:SnapshotFileInfo):Promise<SyncDuoHttpResponse> {
+    // 发起请求
+    const response:AxiosResponse<Blob> = await blobAxiosInstance.post<Blob>(
+        snapshotsUrl + "/download-snapshot-file",
+        snapshotFileInfo,
+        {responseType: "blob"});
+    // 成功则触发浏览器下载
+    if (response.status === 200) {
+        // 设置 url 和 link
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = snapshotFileInfo.fileName;
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+        // 清理
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        return null;
+    } else {
+        // 失败则返回 SynDuoHttpResponse
+        const payload = await response.data.text();
+        return JSON.parse(payload) as SyncDuoHttpResponse<null>;
+    }
+}
+
+export async function downloadSnapshotFiles(snapshotFileInfoList:SnapshotFileInfo[]):Promise<SyncDuoHttpResponse> {
+    // 发起请求
+    const response:AxiosResponse<Blob> = await blobAxiosInstance.post<Blob>(
+        snapshotsUrl + "/download-snapshot-files",
+        snapshotFileInfoList,
+        {
+            timeout: 1000 * 60,
+            responseType: "blob"
+        });
+    // 成功则触发浏览器下载
+    if (response.status === 200) {
+        let filename = "tmp.zip";
+        // 从响应头中获取 Content-Disposition
+        const contentDisposition = response.headers['content-disposition'];
+        // 解析文件名（示例：处理 UTF-8 编码和引号）
+        if (contentDisposition) {
+            const filenameRegex = /filename\*?=([^;]+)/gi;
+            const matches = filenameRegex.exec(contentDisposition);
+            if (matches != null && matches[1]) {
+                // 处理类似 "UTF-8''filename.ext" 或 "filename.ext" 的情况
+                filename = decodeURIComponent(matches[1].replace(/^UTF-8''/i, ''));
+                // 去除可能的引号
+                filename = filename.replace(/['"]/g, '');
+            }
+        }
+        // 设置 url 和 link
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+        // 清理
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        return null;
+    } else {
+        // 失败则返回 SynDuoHttpResponse
+        const payload = await response.data.text();
+        return JSON.parse(payload) as SyncDuoHttpResponse<null>;
+    }
 }

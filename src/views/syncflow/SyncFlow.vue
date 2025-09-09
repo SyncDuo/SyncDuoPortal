@@ -3,7 +3,7 @@
 
     <div class="title_part">
       <span class="snapshot_title">Sync Flow</span>
-      <a-button class="refresh_button" type="link" @click="handleSyncFlowRefresh">
+      <a-button class="refresh_button" type="link" @click="getSyncFlowInfoList">
         <RetweetOutlined/>
       </a-button>
     </div>
@@ -105,14 +105,14 @@
         ADD
       </a-button>
       <!-- Use the ModalComponent -->
-      <sync-flow-modal ref="childModalRef" @syncFlowCreated="getSyncFlowInfoList"/>
+      <sync-flow-modal ref="syncflowModal" @syncFlowCreated="getSyncFlowInfoList"/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {changeAllSyncFlowStatus, changeSyncFlowStatus, getSyncFlow} from '../../api/api';
-import {SyncFlowInfo, SyncFlowResponse, SyncFlowStatus} from "../../api/SyncFlowDataType";
+import {changeAllSyncFlowStatus, changeSyncFlowStatus, getAllSyncFlowInfo} from '../../api/api';
+import {SyncFlowInfo, SyncFlowStatus} from "../../api/SyncFlowDataType";
 import SyncFlowModal from "./SyncFlowModal.vue";
 import {
   EditOutlined,
@@ -137,30 +137,20 @@ const activeKey:Ref<string[]> = ref([]);
 let syncFlowInfoList:Ref<SyncFlowInfo[]> = ref([]);
 // 请求 syncflow 数据的函数
 const getSyncFlowInfoList = async () => {
-  const syncFlowResponse:SyncFlowResponse = await getSyncFlow();
-  if (syncFlowResponse === null) {
-    console.error('SyncFlow not found!');
-    syncFlowInfoList.value = [];
+  const syncFlowInfoTmp = await getAllSyncFlowInfo();
+  if (syncFlowInfoTmp === null || syncFlowInfoTmp === undefined) {
     return;
   }
-  if (syncFlowResponse.code === 500) {
-    console.error('SyncFlow failed. ' + syncFlowResponse.message);
-    syncFlowInfoList.value = [];
-    return;
-  }
-  syncFlowInfoList.value = syncFlowResponse.syncFlowInfoList;
+  syncFlowInfoList.value = syncFlowInfoTmp;
 }
-// sync flow 菜单刷新按钮事件, 触发 api 查询, 刷新页面数据
-const handleSyncFlowRefresh = async () => {
-  await getSyncFlowInfoList();
-};
 // 定义 syncFlowModal 的 ref, 用于访问其方法和变量
-const childModalRef:Ref<InstanceType<typeof SyncFlowModal | null>> = ref(null);
+const syncflowModal:Ref<InstanceType<typeof SyncFlowModal | null>> = ref(null);
 // sync flow 菜单添加按钮事件, 展示 modal
 const handleSyncFlowAddButton = () => {
-  if (childModalRef.value) {
-    childModalRef.value.showModal();
+  if (syncflowModal === null || syncflowModal === undefined) {
+    console.error("childModalRef not initialized");
   }
+  syncflowModal.value.showModal();
 };
 // 改变syncflow状态的函数
 const changeSyncFlowStatusFunc = async (syncFlowId:string, syncFlowStatus:SyncFlowStatus) => {

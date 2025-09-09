@@ -1,21 +1,3 @@
-export interface SnapshotsResponse {
-
-    code: number;
-
-    message: string;
-
-    dataList: SyncFlowWithSnapshots[];
-}
-
-export interface SnapshotsFileResponse {
-
-    code: number;
-
-    message: string;
-
-    dataList: SnapshotFileInfo[];
-}
-
 export interface SyncFlowWithSnapshots {
 
     syncFlowId: string;
@@ -49,6 +31,8 @@ export interface SnapshotInfo {
 }
 
 export interface SnapshotFileInfo {
+
+    snapshotId: string;
 
     path: string;
 
