@@ -1,10 +1,12 @@
 <template>
   <a-modal
       v-model:open="isModalVisible"
+      @ok="() => isModalVisible = false"
+      @cancel="() => isModalVisible = false"
       title="Snapshots History"
-      width="1300px"
-  >
+      width="1300px">
     <a-layout class="file-browser-container">
+      <!-- 标题 -->
       <a-layout-header class="header">
         <h1>文件浏览器</h1>
       </a-layout-header>
@@ -52,11 +54,9 @@
                     v-if="record.type === 'file'"
                     type="primary"
                     size="small"
-                    @click="previewFile(record)"
-                >
+                    @click="previewFile(record)">
                   预览
                 </a-button>
-
                 <a-button type="primary" size="small" @click="downloadFile(record)">下载</a-button>
               </a-space>
             </template>
@@ -72,8 +72,7 @@
           :footer="null"
           centered
           destroyOnClose
-          class="preview-modal"
-      >
+          class="preview-modal">
         <div class="preview-content">
           <!-- 图片预览 -->
           <img
@@ -125,6 +124,8 @@ import {FileOutlined, FileUnknownOutlined, FolderOutlined,} from "@ant-design/ic
 import {SnapshotFileInfo} from "../../api/SnapshotsDataType";
 import {downloadSnapshotFile, downloadSnapshotFiles, getSnapshotFileInfo} from "../../api/Api";
 import {captureAndLog} from "../../util/ExceptionHandler";
+import {AxiosResponse} from "axios";
+import {message} from 'ant-design-vue';
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
@@ -195,10 +196,8 @@ const breadcrumbs = ref<string[]>([]);
 const openDirectory = async (dirName: string) => {
   // 当前路径拼接目标文件夹
   currentPath.value = `${currentPath.value}${dirName}/`;
-
   // 从当前路径中提取面包屑部分（排除首尾的斜杠）, 并更新
   breadcrumbs.value = currentPath.value.split("/").filter((part) => part);
-
   // 刷新文件列表
   await fetchFiles();
 };
@@ -214,13 +213,10 @@ const goToRoot = async () => {
 const navigateTo = async (index: number) => {
   // 点击当前路径,不跳转
   if (index === breadcrumbs.value.length - 1) return;
-
   // 新面包屑 = 旧的面包屑截取 0~index 的元素
   breadcrumbs.value = breadcrumbs.value.slice(0, index + 1);
-
   // 新路径 = 根路径("/") 拼接面包屑中的路径(使用"/"拼接)
   currentPath.value = "/" + breadcrumbs.value.join("/");
-
   await fetchFiles();
 };
 
@@ -259,10 +255,57 @@ const previewFile = (file: SnapshotFileInfo) => {
 
 // 下载文件
 const downloadFile = async (snapshotFileInfo:SnapshotFileInfo) => {
-  if (snapshotFileInfo.type === "file") {
-    await captureAndLog(async () => {await downloadSnapshotFile(snapshotFileInfo)})();
-  } else {
-    await captureAndLog(async () => {await downloadSnapshotFiles([snapshotFileInfo])})();
+  loading.value = true;
+  try {
+    let response:AxiosResponse<Blob>;
+    if (snapshotFileInfo.type === "file") {
+      response = await captureAndLog(async () => {
+        return await downloadSnapshotFile(snapshotFileInfo)
+      })();
+    } else {
+      response = await captureAndLog(async () => {
+        return await downloadSnapshotFiles([snapshotFileInfo])
+      })();
+    }
+    if (response === null || response === undefined) {
+      // 弹窗异常
+      message.error("服务器异常, response 为空");
+      return;
+    }
+    let filename:string;
+    // 从响应头中获取 Content-Disposition
+    const contentDisposition = response.headers['content-disposition'];
+    // 解析文件名（示例：处理 UTF-8 编码和引号）
+    if (contentDisposition) {
+      const filenameRegex = /filename\*?=([^;]+)/gi;
+      const matches = filenameRegex.exec(contentDisposition);
+      if (matches != null && matches[1]) {
+        // 处理类似 "UTF-8''filename.ext" 或 "filename.ext" 的情况
+        filename = decodeURIComponent(matches[1].replace(/^UTF-8''/i, ''));
+        // 去除可能的引号
+        filename = filename.replace(/['"]/g, '');
+      }
+    }
+    if (filename === null || filename === undefined) {
+      // 弹窗异常
+      message.error("服务器异常, filename 为空");
+      return;
+    }
+    // 设置 url 和 link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    // 触发下载
+    document.body.appendChild(link);
+    link.click();
+    // 清理
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (e) {
+
+  } finally {
+    loading.value = false;
   }
 };
 

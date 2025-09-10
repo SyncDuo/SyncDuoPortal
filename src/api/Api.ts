@@ -120,63 +120,24 @@ export async function getSnapshotFileInfo(backupJobId:string, path:string):Promi
     return response.data.data;
 }
 
-export async function downloadSnapshotFile(snapshotFileInfo:SnapshotFileInfo) {
+export async function downloadSnapshotFile(snapshotFileInfo:SnapshotFileInfo): Promise<AxiosResponse<Blob>> {
     // 发起请求
-    const response:AxiosResponse<Blob> = await blobAxiosInstance.post<Blob>(
+    return await blobAxiosInstance.post<Blob>(
         snapshotsUrl + "/download-snapshot-file",
         snapshotFileInfo,
-        {responseType: "blob"});
-    // 成功则触发浏览器下载
-    if (response.status === 200) {
-        // 设置 url 和 link
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = snapshotFileInfo.fileName;
-        // 触发下载
-        document.body.appendChild(link);
-        link.click();
-        // 清理
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    }
+        {
+            timeout: 20 * 1000,
+            responseType: "blob"
+        });
 }
 
-export async function downloadSnapshotFiles(snapshotFileInfoList:SnapshotFileInfo[]) {
+export async function downloadSnapshotFiles(snapshotFileInfoList:SnapshotFileInfo[]): Promise<AxiosResponse<Blob>> {
     // 发起请求
-    const response:AxiosResponse<Blob> = await blobAxiosInstance.post<Blob>(
+    return  await blobAxiosInstance.post<Blob>(
         snapshotsUrl + "/download-snapshot-files",
         snapshotFileInfoList,
         {
-            timeout: 1000 * 60,
+            timeout: 20 * 1000,
             responseType: "blob"
         });
-    // 成功则触发浏览器下载
-    if (response.status === 200) {
-        let filename = "tmp.zip";
-        // 从响应头中获取 Content-Disposition
-        const contentDisposition = response.headers['content-disposition'];
-        // 解析文件名（示例：处理 UTF-8 编码和引号）
-        if (contentDisposition) {
-            const filenameRegex = /filename\*?=([^;]+)/gi;
-            const matches = filenameRegex.exec(contentDisposition);
-            if (matches != null && matches[1]) {
-                // 处理类似 "UTF-8''filename.ext" 或 "filename.ext" 的情况
-                filename = decodeURIComponent(matches[1].replace(/^UTF-8''/i, ''));
-                // 去除可能的引号
-                filename = filename.replace(/['"]/g, '');
-            }
-        }
-        // 设置 url 和 link
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        // 触发下载
-        document.body.appendChild(link);
-        link.click();
-        // 清理
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    }
 }
