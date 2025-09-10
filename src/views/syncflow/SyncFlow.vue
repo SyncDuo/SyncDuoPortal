@@ -3,7 +3,7 @@
 
     <div class="title_part">
       <span class="snapshot_title">Sync Flow</span>
-      <a-button class="refresh_button" type="link" @click="getSyncFlowInfoList">
+      <a-button class="refresh_button" type="link" @click="getSyncFlowInfoListFunc">
         <RetweetOutlined/>
       </a-button>
     </div>
@@ -110,12 +110,12 @@
   </div>
 
   <!-- Use the ModalComponent -->
-  <sync-flow-create-modal ref="syncFlowCreateModal" @syncFlowCreated="getSyncFlowInfoList"/>
-  <sync-flow-update-modal ref="syncFlowUpdateModal" @syncFlowUpdated="getSyncFlowInfoList"/>
+  <sync-flow-create-modal ref="syncFlowCreateModal" @syncFlowCreated="getSyncFlowInfoListFunc"/>
+  <sync-flow-update-modal ref="syncFlowUpdateModal" @syncFlowUpdated="getSyncFlowInfoListFunc"/>
 </template>
 
 <script setup lang="ts">
-import {changeAllSyncFlowStatus, changeSyncFlowStatus, getAllSyncFlowInfo} from '../../api/api';
+import {changeAllSyncFlowStatus, changeSyncFlowStatus, getAllSyncFlowInfo} from '../../api/Api';
 import {SyncFlowInfo, SyncFlowStatus} from "../../api/SyncFlowDataType";
 import SyncFlowCreateModal from "./SyncFlowCreateModal.vue";
 import SyncFlowUpdateModal from "./SyncFlowUpdateModal.vue";
@@ -132,6 +132,7 @@ import {
 } from '@ant-design/icons-vue';
 import {onMounted, onUnmounted, Ref, ref} from 'vue';
 import {useGlobalTimerStore} from "../../store/timer";
+import {captureAndLog} from "../../util/ExceptionHandler";
 
 
 // 定时器
@@ -148,8 +149,8 @@ const editButtonDisable = (syncFlowInfo: SyncFlowInfo): boolean => {
 // 定义 syncFlowInfoList
 let syncFlowInfoList:Ref<SyncFlowInfo[]> = ref([]);
 // 请求 syncflow 数据的函数
-const getSyncFlowInfoList = async () => {
-  const syncFlowInfoTmp = await getAllSyncFlowInfo();
+const getSyncFlowInfoListFunc = async () => {
+  const syncFlowInfoTmp = await captureAndLog(getAllSyncFlowInfo)();
   if (syncFlowInfoTmp === null || syncFlowInfoTmp === undefined) {
     return;
   }
@@ -179,21 +180,19 @@ const changeSyncFlowStatusFunc = async (syncFlowId:string, syncFlowStatus:SyncFl
     return;
   }
   if (syncFlowId === "0") {
-    await changeAllSyncFlowStatus({
-      syncFlowId:syncFlowId,
-      syncFlowStatus:syncFlowStatus
-    });
+    await captureAndLog(async () => {
+      await changeAllSyncFlowStatus({syncFlowId:syncFlowId, syncFlowStatus:syncFlowStatus})
+    })();
   } else {
-    await changeSyncFlowStatus({
-      syncFlowId:syncFlowId,
-      syncFlowStatus:syncFlowStatus
-    });
+    await captureAndLog(async () => {
+      await changeSyncFlowStatus({syncFlowId: syncFlowId, syncFlowStatus: syncFlowStatus})
+    })();
   }
-  await getSyncFlowInfoList();
+  await getSyncFlowInfoListFunc();
 };
 // 页面加载的时候获取 syncflow 数据渲染
 onMounted(() => {
-  timer.registerJob("getSyncFlowInfoList", getSyncFlowInfoList);
+  timer.registerJob("getSyncFlowInfoList", getSyncFlowInfoListFunc);
 });
 onUnmounted(() => {
   timer.unregisterJob("getSyncFlowInfoList");

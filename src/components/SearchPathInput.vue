@@ -8,7 +8,7 @@
 
 <script lang="ts" setup>
 import {Ref, ref} from 'vue';
-import {getFolderName} from "../api/api";
+import {getFolderName} from "../api/Api";
 import {Folder} from "../api/FileSystemAccessDataType";
 
 // 定义联想内容的格式

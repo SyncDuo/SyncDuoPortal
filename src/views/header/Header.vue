@@ -36,10 +36,11 @@
 
 <script setup lang="ts">
 import {FileSyncOutlined, SettingOutlined, DownOutlined, FileTextFilled} from '@ant-design/icons-vue';
-import { getHostName } from "../../api/api";
+import { getHostName } from "../../api/Api";
 import {onMounted, onUnmounted, Ref, ref} from "vue";
 import SettingsModal from "./SettingsModal.vue";
 import {useGlobalTimerStore} from "../../store/timer";
+import {captureAndLog} from "../../util/ExceptionHandler";
 
 
 // 获取全局定时器
@@ -47,7 +48,7 @@ const timer = useGlobalTimerStore();
 // 获取 hostName 并渲染
 let hostName:Ref<string> = ref('');
 const getHostNameFunc = async () => {
-  const hostNameString = await getHostName();
+  const hostNameString = await captureAndLog(async () => {return await getHostName()})();
   if (hostNameString === null || hostNameString === undefined) {
     hostName.value = "";
     return;

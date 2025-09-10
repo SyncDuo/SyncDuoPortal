@@ -43,11 +43,12 @@
 </template>
 
 <script setup lang="ts">
-import {getSystemInfo} from '../../api/api';
+import {getSystemInfo} from '../../api/Api';
 import {createEmptySystemInfo, SystemInfo} from "../../api/SystemInfoDataType.js";
 import {FileOutlined, FolderOutlined, HddOutlined, RetweetOutlined} from '@ant-design/icons-vue';
 import {onMounted, onUnmounted, Ref, ref} from 'vue';
 import {useGlobalTimerStore} from "../../store/timer";
+import {captureAndLog} from "../../util/ExceptionHandler";
 
 // 使用全局定时器
 const timer = useGlobalTimerStore();
@@ -55,7 +56,7 @@ const timer = useGlobalTimerStore();
 const systemInfo:Ref<SystemInfo> = ref(createEmptySystemInfo());
 // 请求 systemInfoResponse 数据的函数
 const getSystemInfoFunc = async () => {
-  const systemInfoTmp = await getSystemInfo();
+  const systemInfoTmp = await captureAndLog(getSystemInfo)();
   if (systemInfoTmp === null || systemInfoTmp === undefined) {
     systemInfo.value = createEmptySystemInfo();
     return;

@@ -61,7 +61,7 @@ function globalErrorResponseInterceptor(error: AxiosError):Promise<Error> {
         errorMessage = error.message || '发起请求时发生未知错误';
     }
 
-    console.error(`请求失败: ${errorMessage}`, error);
+    // console.error(`请求失败: ${errorMessage}`, error);
 
     // 创建一个增强的错误对象，携带更多信息用于抛出
     const enhancedError = new Error(errorMessage);

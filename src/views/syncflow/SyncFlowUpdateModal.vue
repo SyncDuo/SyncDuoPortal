@@ -38,12 +38,13 @@
 </template>
 
 <script setup lang="ts">
-import {getSyncFlowInfo, updateFilterCriteria} from '../../api/api'
+import {getSyncFlowInfo, updateFilterCriteria} from '../../api/Api'
 import {ref, Ref} from 'vue';
 import {
   createEmptySyncFlowInfo,
   SyncFlowInfo,
 } from "../../api/SyncFlowDataType";
+import {captureAndLog} from "../../util/ExceptionHandler";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
@@ -53,7 +54,7 @@ const activeTab:Ref<string> = ref("basic");
 const syncFlowInfo: Ref<SyncFlowInfo> = ref(createEmptySyncFlowInfo());
 // 获取 syncflow info 的函数
 const getSyncFlowInfoFunc = async (syncFlowId:string) => {
-  const syncFlowInfoTmp = await getSyncFlowInfo(syncFlowId);
+  const syncFlowInfoTmp = await captureAndLog(async () => {return await getSyncFlowInfo(syncFlowId)})();
   if (syncFlowInfoTmp === null || syncFlowInfoTmp === undefined) {
     return;
   }
@@ -66,10 +67,10 @@ const emit = defineEmits<{
 // modal 正确关闭的事件逻辑
 const handleOk = async () => {
   // 发起更新过滤条件的请求
-  await updateFilterCriteria({
+  await captureAndLog(async () => await updateFilterCriteria({
     syncFlowId: syncFlowInfo.value.syncFlowId,
     filterCriteria: syncFlowInfo.value.filterCriteria,
-  });
+  }))();
   isModalVisible.value = false;
   syncFlowInfo.value = createEmptySyncFlowInfo();
   emit('syncFlowUpdated');

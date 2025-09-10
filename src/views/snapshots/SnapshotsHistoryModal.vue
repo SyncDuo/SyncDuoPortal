@@ -123,8 +123,8 @@
 import {ref, Ref} from "vue";
 import {FileOutlined, FileUnknownOutlined, FolderOutlined,} from "@ant-design/icons-vue";
 import {SnapshotFileInfo} from "../../api/SnapshotsDataType";
-import {downloadSnapshotFile, downloadSnapshotFiles, getSnapshotFileInfo} from "../../api/api";
-import {SyncDuoHttpResponse} from "../../api/GlobalDataType";
+import {downloadSnapshotFile, downloadSnapshotFiles, getSnapshotFileInfo} from "../../api/Api";
+import {captureAndLog} from "../../util/ExceptionHandler";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
@@ -259,14 +259,10 @@ const previewFile = (file: SnapshotFileInfo) => {
 
 // 下载文件
 const downloadFile = async (snapshotFileInfo:SnapshotFileInfo) => {
-  let syncDuoHttpResponse: SyncDuoHttpResponse;
   if (snapshotFileInfo.type === "file") {
-    syncDuoHttpResponse = await downloadSnapshotFile(snapshotFileInfo);
+    await captureAndLog(async () => {await downloadSnapshotFile(snapshotFileInfo)})();
   } else {
-    syncDuoHttpResponse = await downloadSnapshotFiles([snapshotFileInfo]);
-  }
-  if (syncDuoHttpResponse != null) {
-    console.error("download file failed. ex: " + syncDuoHttpResponse.message);
+    await captureAndLog(async () => {await downloadSnapshotFiles([snapshotFileInfo])})();
   }
 };
 

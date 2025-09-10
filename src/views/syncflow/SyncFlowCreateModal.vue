@@ -41,10 +41,11 @@
 </template>
 
 <script setup lang="ts">
-import {addSyncFlow} from '../../api/api'
+import {addSyncFlow} from '../../api/Api'
 import {ref, Ref} from 'vue';
 import {CreateSyncFlowRequest} from "../../api/SyncFlowDataType";
 import SearchBar from "../../components/SearchPathInput.vue";
+import {captureAndLog} from "../../util/ExceptionHandler";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
@@ -73,7 +74,7 @@ const emit = defineEmits<{
 }>();
 // 提交数据的函数
 const createSyncFlow = async (payload:CreateSyncFlowRequest) => {
-  await addSyncFlow(payload);
+  await captureAndLog(async () => {await addSyncFlow(payload)})();
   emit('syncFlowCreated');
 };
 // modal 正确关闭的事件逻辑

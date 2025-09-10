@@ -1,4 +1,4 @@
-import blobAxiosInstance, {restAxiosInstance} from "../util/http";
+import blobAxiosInstance, {restAxiosInstance} from "../util/Http";
 import {
     CreateSyncFlowRequest,
     ChangeSyncFlowStatusRequest,
@@ -120,7 +120,7 @@ export async function getSnapshotFileInfo(backupJobId:string, path:string):Promi
     return response.data.data;
 }
 
-export async function downloadSnapshotFile(snapshotFileInfo:SnapshotFileInfo):Promise<SyncDuoHttpResponse> {
+export async function downloadSnapshotFile(snapshotFileInfo:SnapshotFileInfo) {
     // 发起请求
     const response:AxiosResponse<Blob> = await blobAxiosInstance.post<Blob>(
         snapshotsUrl + "/download-snapshot-file",
@@ -139,15 +139,10 @@ export async function downloadSnapshotFile(snapshotFileInfo:SnapshotFileInfo):Pr
         // 清理
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        return null;
-    } else {
-        // 失败则返回 SynDuoHttpResponse
-        const payload = await response.data.text();
-        return JSON.parse(payload) as SyncDuoHttpResponse<null>;
     }
 }
 
-export async function downloadSnapshotFiles(snapshotFileInfoList:SnapshotFileInfo[]):Promise<SyncDuoHttpResponse> {
+export async function downloadSnapshotFiles(snapshotFileInfoList:SnapshotFileInfo[]) {
     // 发起请求
     const response:AxiosResponse<Blob> = await blobAxiosInstance.post<Blob>(
         snapshotsUrl + "/download-snapshot-files",
@@ -183,10 +178,5 @@ export async function downloadSnapshotFiles(snapshotFileInfoList:SnapshotFileInf
         // 清理
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        return null;
-    } else {
-        // 失败则返回 SynDuoHttpResponse
-        const payload = await response.data.text();
-        return JSON.parse(payload) as SyncDuoHttpResponse<null>;
     }
 }

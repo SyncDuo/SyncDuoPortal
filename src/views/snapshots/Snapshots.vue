@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, Ref} from "vue";
 import {SyncFlowWithSnapshots} from "../../api/SnapshotsDataType";
-import {getAllSyncFlowWithSnapshots, manualBackupSyncFlow} from "../../api/api";
+import {getAllSyncFlowWithSnapshots, manualBackupSyncFlow} from "../../api/Api";
 import {
   DeliveredProcedureOutlined,
   RetweetOutlined,
@@ -67,6 +67,7 @@ import {
 import {formatTimestamp} from "../../util/DateUtil";
 import SnapshotsHistoryModal from "./SnapshotsHistoryModal.vue";
 import {useGlobalTimerStore} from "../../store/timer";
+import {captureAndLog} from "../../util/ExceptionHandler";
 
 
 // 全局定时器
@@ -85,7 +86,8 @@ const handlePathButtonClick = (backupJobId:string) => {
 const activeKey:Ref<string[]> = ref([]);
 const syncFlowSnapshotsInfoList:Ref<SyncFlowWithSnapshots[]> = ref([]);
 const getSyncFlowSnapshotsInfoData = async () => {
-  const allSyncFlowWithSnapshots = await getAllSyncFlowWithSnapshots();
+  const allSyncFlowWithSnapshots =
+      await captureAndLog(async () => {return await getAllSyncFlowWithSnapshots()})();
   if (allSyncFlowWithSnapshots === null || allSyncFlowWithSnapshots === undefined) {
     return;
   }
@@ -146,7 +148,7 @@ const manualBackupSyncFlowFunc = async (syncFlowId:string) => {
     console.error('syncFlowId is null!');
     return;
   }
-  await manualBackupSyncFlow({syncFlowId:syncFlowId});
+  await captureAndLog(async () => {await manualBackupSyncFlow({syncFlowId:syncFlowId})})();
   await getSyncFlowSnapshotsInfoData();
 };
 // 页面加载的时候获取全部 syncFlowSnapshotsInfoData

@@ -50,9 +50,10 @@
 </template>
 
 <script setup lang="ts">
-import { getSystemSettings } from '../../api/api';
+import { getSystemSettings } from '../../api/Api';
 import {ref, Ref, watch} from 'vue';
 import {createEmptySystemSettings, SystemSettings} from "../../api/SystemInfoDataType";
+import {captureAndLog} from "../../util/ExceptionHandler";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
@@ -62,7 +63,7 @@ const activeTab:Ref<string> = ref("system");
 const form:Ref<SystemSettings> = ref(createEmptySystemSettings());
 // 获取 system settings 的函数
 const getSystemSettingsAndConvert = async () => {
-  const systemSettings = await getSystemSettings();
+  const systemSettings = await captureAndLog(async () => {return await getSystemSettings()})();
   if (systemSettings === null || systemSettings === undefined) {
     form.value = createEmptySystemSettings();
     return;
