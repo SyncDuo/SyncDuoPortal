@@ -3,7 +3,7 @@ import './style.css'
 import App from './App.vue'
 import {createPinia} from "pinia";
 
-// todo: 4. 文件下载提示 6. 过滤条件改进 7. 文件预览(txt, 图片, pdf)
+// todo: 4. 文件下载提示 6. 过滤条件改进
 const app = createApp(App).use(createPinia());
 
 app.config.errorHandler = (err, instance, info) => {

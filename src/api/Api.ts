@@ -141,3 +141,14 @@ export async function downloadSnapshotFiles(snapshotFileInfoList:SnapshotFileInf
             responseType: "blob"
         });
 }
+
+export async function previewFile(snapshotFileInfo:SnapshotFileInfo): Promise<AxiosResponse<Blob>> {
+    // 发起请求
+    return await blobAxiosInstance.post<Blob>(
+        snapshotsUrl + "/preview-file",
+        snapshotFileInfo,
+        {
+            timeout: 20 * 1000,
+            responseType: "blob"
+        });
+}

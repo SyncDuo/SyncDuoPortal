@@ -4,7 +4,9 @@
       @ok="() => isModalVisible = false"
       @cancel="() => isModalVisible = false"
       title="Snapshots History"
-      width="1300px">
+      width="1300px"
+      :centered="true"
+      :destroyOnClose="true">
     <a-layout class="file-browser-container">
       <!-- 标题 -->
       <a-layout-header class="header">
@@ -54,7 +56,7 @@
                     v-if="record.type === 'file'"
                     type="primary"
                     size="small"
-                    @click="previewFile(record)">
+                    @click="previewFileFunc(record)">
                   预览
                 </a-button>
                 <a-button type="primary" size="small" @click="downloadFile(record)">下载</a-button>
@@ -70,47 +72,32 @@
           :title="previewTitle"
           width="80%"
           :footer="null"
-          centered
-          destroyOnClose
+          :centered="true"
+          :destroyOnClose="true"
           class="preview-modal">
         <div class="preview-content">
           <!-- 图片预览 -->
-          <img
+          <a-image
               v-if="previewFileType === 'image' && previewUrl"
               :src="previewUrl"
-              alt="预览图"
-              class="preview-image"
-          />
+              class="preview-image"/>
 
-          <!-- 文本预览 -->
-          <a-textarea
-              v-else-if="previewFileType === 'text' && previewContent"
-              :value="previewContent"
-              readonly
-              auto-size
-              class="preview-text"
-          />
+          <!-- TXT 预览 -->
+          <iframe
+              v-else-if="previewFileType === 'text' && previewUrl"
+              :src="previewUrl"
+              class="preview-text"/>
 
-          <!-- PDF预览 -->
+          <!-- PDF 预览 -->
           <iframe
               v-else-if="previewFileType === 'pdf' && previewUrl"
               :src="previewUrl"
-              class="preview-pdf"
-          ></iframe>
+              class="preview-pdf"/>
 
           <!-- 其他类型 -->
-          <div
-              v-else-if="previewFileType === 'other'"
-              class="unsupported-preview"
-          >
+          <div v-else class="unsupported-preview">
             <file-unknown-outlined class="preview-icon" />
             <p>不支持预览此文件类型</p>
-          </div>
-
-          <!-- 加载状态 -->
-          <div v-else class="loading-preview">
-            <a-spin size="large" />
-            <p>加载预览中...</p>
           </div>
         </div>
       </a-modal>
@@ -122,7 +109,7 @@
 import {ref, Ref} from "vue";
 import {FileOutlined, FileUnknownOutlined, FolderOutlined,} from "@ant-design/icons-vue";
 import {SnapshotFileInfo} from "../../api/SnapshotsDataType";
-import {downloadSnapshotFile, downloadSnapshotFiles, getSnapshotFileInfo} from "../../api/Api";
+import {downloadSnapshotFile, downloadSnapshotFiles, getSnapshotFileInfo, previewFile} from "../../api/Api";
 import {captureAndLog} from "../../util/ExceptionHandler";
 import {AxiosResponse} from "axios";
 import {message} from 'ant-design-vue';
@@ -161,15 +148,13 @@ const columns = [
 const fileList = ref<SnapshotFileInfo[]>([]);
 // 文件列表加载状态
 const loading = ref<boolean>(true);
-// 预览模态框可见性
+// 文件预览模态框可见性
 const previewVisible = ref<boolean>(false);
-// 预览文件类型
+// 预览的文件类型
 const previewFileType = ref<"image" | "text" | "pdf" | "other" | null>(null);
-// 预览文件URL
+// 预览的文件URL
 const previewUrl = ref<string>("");
-// 预览文本内容
-const previewContent = ref<string>("");
-// 预览标题
+// 预览的标题
 const previewTitle = ref<string>("文件预览");
 
 // 获取文件列表
@@ -221,39 +206,33 @@ const navigateTo = async (index: number) => {
 };
 
 // 预览文件
-const previewFile = (file: SnapshotFileInfo) => {
+const previewFileFunc = async (snapshotFileInfo: SnapshotFileInfo) => {
   previewVisible.value = true;
-  previewTitle.value = `预览: ${file.fileName}`;
-
-  // 根据文件扩展名确定文件类型
-  const ext = file.fileName.split(".").pop()?.toLowerCase();
-
-  // 模拟不同类型的预览处理
-  if (["jpg", "jpeg", "png", "gif"].includes(ext || "")) {
-    previewFileType.value = "image";
-    // 实际项目中，这里应该通过API获取文件URL
-    previewUrl.value = `https://picsum.photos/800/600?random=${Math.floor(
-        Math.random() * 100
-    )}`;
-  } else if (["txt", "js", "ts", "html", "css", "json"].includes(ext || "")) {
-    previewFileType.value = "text";
-    // 模拟文本内容
-    previewContent.value =
-        `这是文件 ${file.fileName} 的模拟内容。\n\n` +
-        `文件大小: ${file.size}\n` +
-        `修改时间: ${file.lastModifiedTime}\n\n` +
-        "在实际项目中，这里会显示文件的实际文本内容。";
-  } else if (ext === "pdf") {
-    previewFileType.value = "pdf";
-    // 模拟PDF文件
-    previewUrl.value =
-        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
-  } else {
+  previewTitle.value = `预览: ${snapshotFileInfo.fileName}`;
+  // 请求文件
+  const response = await captureAndLog(async () => {return await previewFile(snapshotFileInfo)})();
+  if (response === null || response === undefined) {
     previewFileType.value = "other";
+    return;
   }
+  // 根据文件扩展名确定文件类型
+  const ext = snapshotFileInfo.fileName.split(".").pop()?.toLowerCase();
+   if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
+    previewFileType.value = "image";
+     previewUrl.value = window.URL.createObjectURL(new Blob([response.data]));
+  } else if (["txt", "js", "ts", "html", "css", "json"].includes(ext)) {
+    previewFileType.value = "text";
+     previewUrl.value = window.URL.createObjectURL(new Blob([response.data]));
+  } else if ("pdf" === ext) {
+     previewFileType.value = "pdf";
+     previewUrl.value = "pdfjs/web/viewer.html?file=" + window.URL.createObjectURL(new Blob([response.data]));
+   } else {
+     previewFileType.value = "other";
+     return;
+   }
 };
 
-// 下载文件
+// 下载单个文件/文件夹
 const downloadFile = async (snapshotFileInfo:SnapshotFileInfo) => {
   loading.value = true;
   try {
@@ -303,7 +282,9 @@ const downloadFile = async (snapshotFileInfo:SnapshotFileInfo) => {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   } catch (e) {
-
+    console.groupCollapsed('Snapshots Error Handler');
+    console.error("file download failed. ", e);
+    console.groupEnd();
   } finally {
     loading.value = false;
   }
@@ -411,7 +392,7 @@ defineExpose({
 
 .preview-pdf {
   width: 100%;
-  height: 100%;
+  height: 100vh;
 }
 
 .unsupported-preview {
