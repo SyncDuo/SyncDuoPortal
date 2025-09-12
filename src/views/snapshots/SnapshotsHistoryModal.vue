@@ -113,6 +113,7 @@ import {downloadSnapshotFile, downloadSnapshotFiles, getSnapshotFileInfo, previe
 import {captureAndLog} from "../../util/ExceptionHandler";
 import {AxiosResponse} from "axios";
 import {message} from 'ant-design-vue';
+import {getFileExtension} from "../../util/FileUtil";
 
 // modal 是否打开的变量
 const isModalVisible:Ref<boolean> = ref(false);
@@ -216,7 +217,8 @@ const previewFileFunc = async (snapshotFileInfo: SnapshotFileInfo) => {
     return;
   }
   // 根据文件扩展名确定文件类型
-  const ext = snapshotFileInfo.fileName.split(".").pop()?.toLowerCase();
+  console.info("previewFileFunc", snapshotFileInfo.fileName);
+  const ext = getFileExtension(snapshotFileInfo.fileName);
    if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
     previewFileType.value = "image";
      previewUrl.value = window.URL.createObjectURL(new Blob([response.data]));
