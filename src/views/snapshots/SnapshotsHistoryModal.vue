@@ -217,12 +217,11 @@ const previewFileFunc = async (snapshotFileInfo: SnapshotFileInfo) => {
     return;
   }
   // 根据文件扩展名确定文件类型
-  console.info("previewFileFunc", snapshotFileInfo.fileName);
   const ext = getFileExtension(snapshotFileInfo.fileName);
    if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
     previewFileType.value = "image";
      previewUrl.value = window.URL.createObjectURL(new Blob([response.data]));
-  } else if (["txt", "js", "ts", "html", "css", "json"].includes(ext)) {
+  } else if (["txt"].includes(ext)) {
     previewFileType.value = "text";
      previewUrl.value = window.URL.createObjectURL(new Blob([response.data]));
   } else if ("pdf" === ext) {
@@ -406,10 +405,5 @@ defineExpose({
   font-size: 64px;
   color: #1890ff;
   margin-bottom: 20px;
-}
-
-.loading-preview {
-  text-align: center;
-  padding: 40px;
 }
 </style>
