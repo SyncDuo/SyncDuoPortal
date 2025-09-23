@@ -6,7 +6,7 @@
       <span class="syncduo">SyncDuo</span>
     </div>
 
-    <span class="computer_name">{{ hostName }}</span>
+    <span class="host_name">{{ hostName }}</span>
 
     <a-dropdown class="dropdown_section">
       <template #overlay>
@@ -76,29 +76,35 @@ const handleSettingsButtonClick = () => {
 <style scoped>
 .header-content {
   display: flex;
-  align-items: center;  /* Vertically center the icon and text */
+  align-items: center;
+  width: 100%;
 }
 
 .title_logo {
   font-size: 32px;
   margin-left: 8px;
-  color: #1e87b1; /* Optional: Set icon color */
+  color: #1e87b1;
 }
 
 .syncduo {
   font-size: 18px;
   font-weight: bold;
-  color: #1e87b1; /* Optional: Set text color */
+  color: #1e87b1;
 }
 
-.computer_name {
+.host_name {
   font-size: 18px;
   margin-left: 16px;
-  margin-right: 100px;
-  color: #696969; /* Optional: Set text color */
+  margin-right: 16px;
+  color: #696969;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
 }
 
 .dropdown_section {
-  margin-left: 750px;
+  flex-shrink: 0;
 }
 </style>
