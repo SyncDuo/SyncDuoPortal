@@ -4,6 +4,7 @@ FROM node:22.13.0-slim as build-stage
 # 更新系统依赖
 RUN apt-get update && apt-get install -y \
     curl \
+    wget \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
