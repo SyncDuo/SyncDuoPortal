@@ -1,6 +1,12 @@
 # 使用 Node.js 官方镜像作为构建阶段的基础镜像
 FROM node:22.13.0-slim as build-stage
 
+# 更新系统依赖
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # 声明构建参数，这些值将在构建时通过 --build-arg 传入
