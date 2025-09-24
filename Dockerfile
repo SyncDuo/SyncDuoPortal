@@ -26,17 +26,17 @@ RUN mkdir -p public/pdfjs && \
     unzip pdfjs.zip -d public/pdfjs/ && \
     rm pdfjs.zip
 
-# 关键步骤：使用 sed 命令替换 .env.production 文件中的占位符
-# 注意：-i 参数表示直接修改原文件。根据你使用的 shell，语法可能略有不同。
-RUN if [ -n "$VITE_API_BASE_URL" ]; then \
-        sed -i "s|@@VITE_API_BASE_URL@@|${VITE_API_BASE_URL}|g" .env.production; \
-    fi
-
 # 执行构建命令，Vite 会读取已被修改的 .env.production 文件
 RUN npm run build
 
 # 生产阶段，使用 Nginx 服务静态文件
 FROM nginx:alpine as production-stage
+
+# 删除默认的 nginx 配置
+RUN rm /etc/nginx/conf.d/default.conf
+# 复制自定义的 nginx 配置
+COPY nginx.conf /etc/nginx/conf.d/
+
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
