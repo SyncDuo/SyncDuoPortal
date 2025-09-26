@@ -29,7 +29,7 @@ RUN mkdir -p public/pdfjs && \
 # 执行构建命令，Vite 会读取已被修改的 .env.production 文件
 RUN npm run build
 
-# 生产阶段，使用 Nginx 服务静态文件
+# 第二阶段, 生产阶段，使用 Nginx 服务静态文件
 FROM nginx:alpine as production-stage
 
 # 创建应用用户和组（在安装系统依赖之前）
@@ -37,6 +37,10 @@ ARG USER_ID=1000
 ARG GROUP_ID=1000
 RUN groupadd -g $GROUP_ID syncduo-portal && \
     useradd -u $USER_ID -g $GROUP_ID -m syncduo-portal
+
+# 设置时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 删除默认的 nginx 配置
 RUN rm /etc/nginx/conf.d/default.conf
