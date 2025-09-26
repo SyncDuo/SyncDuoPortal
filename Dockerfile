@@ -83,8 +83,5 @@ COPY nginx.conf /etc/nginx/conf.d/
 # 复制构建产物
 COPY --from=build-stage --chown=$USER_ID:$GROUP_ID /app/dist /usr/share/nginx/html
 
-# 切换到非 root 用户
-USER $USER_ID
-
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
