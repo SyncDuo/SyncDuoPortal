@@ -32,11 +32,21 @@ RUN npm run build
 # 生产阶段，使用 Nginx 服务静态文件
 FROM nginx:alpine as production-stage
 
+# 创建应用用户和组（在安装系统依赖之前）
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN groupadd -g $GROUP_ID syncduo-portal && \
+    useradd -u $USER_ID -g $GROUP_ID -m syncduo-portal
+
 # 删除默认的 nginx 配置
 RUN rm /etc/nginx/conf.d/default.conf
 # 复制自定义的 nginx 配置
 COPY nginx.conf /etc/nginx/conf.d/
 
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY --from=build-stage --chown=syncduo-portal:syncduo-portal /app/dist /usr/share/nginx/html
+
+# 切换到非 root 用户
+USER syncduo-portal
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
