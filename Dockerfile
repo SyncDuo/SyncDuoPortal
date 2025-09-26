@@ -32,25 +32,59 @@ RUN npm run build
 # 第二阶段, 生产阶段，使用 Nginx 服务静态文件
 FROM nginx:alpine as production-stage
 
-# 创建应用用户和组（在安装系统依赖之前）
+# 设置时区（更健壮的Alpine时区设置方式）
+ENV TZ=Asia/Shanghai
+RUN apk update && apk add --no-cache tzdata && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    rm -rf /var/cache/apk/*
+
+# 安装shadow包（提供useradd/groupadd命令）
+RUN apk add --no-cache shadow
+
+# 创建应用用户和组（动态参数，避免固定GID冲突）
 ARG USER_ID=1000
 ARG GROUP_ID=1000
-RUN groupadd -g $GROUP_ID syncduo-portal && \
-    useradd -u $USER_ID -g $GROUP_ID -m syncduo-portal
+ARG USERNAME=syncduo-portal
 
-# 设置时区
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# 健壮的用户创建逻辑
+RUN set -eux; \
+    # 检查组是否存在，不存在则创建 \
+    if getent group $GROUP_ID > /dev/null; then \
+        existing_group=$(getent group $GROUP_ID | cut -d: -f1); \
+        echo "使用已存在的组: $existing_group (GID: $GROUP_ID)"; \
+        group_name=$existing_group; \
+    else \
+        groupadd -g $GROUP_ID app-group; \
+        group_name=app-group; \
+        echo "创建新组: $group_name (GID: $GROUP_ID)"; \
+    fi; \
+    \
+    # 检查用户是否存在，不存在则创建 \
+    if id -u $USER_ID > /dev/null 2>&1; then \
+        existing_user=$(id -un $USER_ID); \
+        echo "使用已存在的用户: $existing_user (UID: $USER_ID)"; \
+        user_name=$existing_user; \
+    else \
+        useradd -u $USER_ID -g $GROUP_ID -s /bin/sh -d /home/$USERNAME -m $USERNAME; \
+        user_name=$USERNAME; \
+        echo "创建新用户: $user_name (UID: $USER_ID)"; \
+    fi; \
+    \
+    # 确保Nginx目录权限正确 \
+    chown -R $USER_ID:$GROUP_ID /var/cache/nginx && \
+    chmod -R g+w /var/cache/nginx
 
 # 删除默认的 nginx 配置
 RUN rm /etc/nginx/conf.d/default.conf
 # 复制自定义的 nginx 配置
 COPY nginx.conf /etc/nginx/conf.d/
 
-COPY --from=build-stage --chown=syncduo-portal:syncduo-portal /app/dist /usr/share/nginx/html
+# 复制构建产物
+COPY --from=build-stage --chown=$USER_ID:$GROUP_ID /app/dist /usr/share/nginx/html
 
 # 切换到非 root 用户
-USER syncduo-portal
+USER $USER_ID
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
