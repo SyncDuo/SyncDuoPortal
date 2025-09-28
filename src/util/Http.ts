@@ -3,7 +3,7 @@ import {SyncDuoHttpResponse} from "../api/GlobalDataType";
 
 const restAxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
-    timeout: 5000,
+    timeout: 1000 * 15, // 15 秒超时
 });
 
 restAxiosInstance.interceptors.response.use(
@@ -15,7 +15,7 @@ restAxiosInstance.interceptors.response.use(
 
 const blobAxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
-    timeout: 5000,
+    timeout: 1000 * 30, // 30 秒超时
 });
 
 blobAxiosInstance.interceptors.response.use(
