@@ -150,7 +150,7 @@ const editButtonDisable = (syncFlowInfo: SyncFlowInfo): boolean => {
 let syncFlowInfoList:Ref<SyncFlowInfo[]> = ref([]);
 // 请求 syncflow 数据的函数
 const getSyncFlowInfoListFunc = async () => {
-  const syncFlowInfoTmp = await captureAndLog(getAllSyncFlowInfo)();
+  const syncFlowInfoTmp = await captureAndLog(() => getAllSyncFlowInfo());
   if (syncFlowInfoTmp === null || syncFlowInfoTmp === undefined) {
     return;
   }
@@ -180,13 +180,11 @@ const changeSyncFlowStatusFunc = async (syncFlowId:string, syncFlowStatus:SyncFl
     return;
   }
   if (syncFlowId === "0") {
-    await captureAndLog(async () => {
-      await changeAllSyncFlowStatus({syncFlowId:syncFlowId, syncFlowStatus:syncFlowStatus})
-    })();
+    await captureAndLog(() =>
+        changeAllSyncFlowStatus({syncFlowId:syncFlowId, syncFlowStatus:syncFlowStatus}));
   } else {
-    await captureAndLog(async () => {
-      await changeSyncFlowStatus({syncFlowId: syncFlowId, syncFlowStatus: syncFlowStatus})
-    })();
+    await captureAndLog(() =>
+        changeSyncFlowStatus({syncFlowId: syncFlowId, syncFlowStatus: syncFlowStatus}));
   }
   await getSyncFlowInfoListFunc();
 };

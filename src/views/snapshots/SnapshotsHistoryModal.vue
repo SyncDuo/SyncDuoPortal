@@ -109,7 +109,7 @@
 import {ref, Ref} from "vue";
 import {FileOutlined, FileUnknownOutlined, FolderOutlined,} from "@ant-design/icons-vue";
 import {SnapshotFileInfo} from "../../api/SnapshotsDataType";
-import {downloadSnapshotFile, downloadSnapshotFiles, getSnapshotFileInfo, previewFile} from "../../api/Api";
+import {submitDownloadJob, getDownloadFiles, getSnapshotFileInfo} from "../../api/Api";
 import {captureAndLog} from "../../util/ExceptionHandler";
 import {AxiosResponse} from "axios";
 import {message} from 'ant-design-vue';
@@ -211,7 +211,7 @@ const previewFileFunc = async (snapshotFileInfo: SnapshotFileInfo) => {
   previewVisible.value = true;
   previewTitle.value = `预览: ${snapshotFileInfo.fileName}`;
   // 请求文件
-  const response = await captureAndLog(async () => {return await previewFile(snapshotFileInfo)})();
+  const response = await captureAndLog(() => downloadFileInner(snapshotFileInfo, true));
   if (response === null || response === undefined) {
     previewFileType.value = "other";
     return;
@@ -234,24 +234,11 @@ const previewFileFunc = async (snapshotFileInfo: SnapshotFileInfo) => {
 };
 
 // 下载单个文件/文件夹
-const downloadFile = async (snapshotFileInfo:SnapshotFileInfo) => {
+const downloadFile = async (snapshotFileInfo:SnapshotFileInfo, isPreview:boolean=false) => {
   loading.value = true;
+
   try {
-    let response:AxiosResponse<Blob>;
-    if (snapshotFileInfo.type === "file") {
-      response = await captureAndLog(async () => {
-        return await downloadSnapshotFile(snapshotFileInfo)
-      })();
-    } else {
-      response = await captureAndLog(async () => {
-        return await downloadSnapshotFiles([snapshotFileInfo])
-      })();
-    }
-    if (response === null || response === undefined) {
-      // 弹窗异常
-      message.error("服务器异常, response 为空");
-      return;
-    }
+    const response = await captureAndLog(() => downloadFileInner(snapshotFileInfo, isPreview));
     let filename:string;
     // 从响应头中获取 Content-Disposition
     const contentDisposition = response.headers['content-disposition'];
@@ -290,6 +277,33 @@ const downloadFile = async (snapshotFileInfo:SnapshotFileInfo) => {
     loading.value = false;
   }
 };
+
+const downloadFileInner = async (
+    snapshotFileInfo:SnapshotFileInfo, isPreview:boolean=false):Promise<AxiosResponse<Blob>> => {
+  // 参数检查
+  if (snapshotFileInfo === null) {
+    throw new Error("No snapshotFileInfo");
+  }
+  if (isPreview && snapshotFileInfo.type !== "file") {
+    throw new Error("only supports preview file");
+  }
+  const downloadJobId = await captureAndLog(() => submitDownloadJob([snapshotFileInfo]));
+  if (downloadJobId === null || downloadJobId === undefined) {
+    throw new Error("服务器没有返回 downloadJobId");
+  }
+  // 重试三次, 最长 15 秒
+  for (let i = 0; i < 3; i++) {
+    const response = await captureAndLog(() => getDownloadFiles(downloadJobId, isPreview));
+    if (response.status === 200) {
+      return response;
+    } else if (response === null || response === undefined) {
+      // 弹窗异常
+      throw new Error("服务器异常, response 为空");
+    }
+    // 等待 5 秒
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+}
 
 // 定义需要暴露的方法
 defineExpose({

@@ -48,7 +48,7 @@ const timer = useGlobalTimerStore();
 // 获取 hostName 并渲染
 let hostName:Ref<string> = ref('');
 const getHostNameFunc = async () => {
-  const hostNameString = await captureAndLog(async () => {return await getHostName()})();
+  const hostNameString = await captureAndLog(() => getHostName());
   if (hostNameString === null || hostNameString === undefined) {
     hostName.value = "";
     return;

@@ -87,7 +87,7 @@ const activeKey:Ref<string[]> = ref([]);
 const syncFlowSnapshotsInfoList:Ref<SyncFlowWithSnapshots[]> = ref([]);
 const getSyncFlowSnapshotsInfoData = async () => {
   const allSyncFlowWithSnapshots =
-      await captureAndLog(async () => {return await getAllSyncFlowWithSnapshots()})();
+      await captureAndLog(() => getAllSyncFlowWithSnapshots());
   if (allSyncFlowWithSnapshots === null || allSyncFlowWithSnapshots === undefined) {
     return;
   }
@@ -148,7 +148,7 @@ const manualBackupSyncFlowFunc = async (syncFlowId:string) => {
     console.error('syncFlowId is null!');
     return;
   }
-  await captureAndLog(async () => {await manualBackupSyncFlow({syncFlowId:syncFlowId})})();
+  await captureAndLog(() => manualBackupSyncFlow({syncFlowId:syncFlowId}));
   await getSyncFlowSnapshotsInfoData();
 };
 // 页面加载的时候获取全部 syncFlowSnapshotsInfoData

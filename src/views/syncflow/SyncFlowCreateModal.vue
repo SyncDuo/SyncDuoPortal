@@ -74,7 +74,7 @@ const emit = defineEmits<{
 }>();
 // 提交数据的函数
 const createSyncFlow = async (payload:CreateSyncFlowRequest) => {
-  await captureAndLog(async () => {await addSyncFlow(payload)})();
+  await captureAndLog(() => addSyncFlow(payload));
   emit('syncFlowCreated');
 };
 // modal 正确关闭的事件逻辑

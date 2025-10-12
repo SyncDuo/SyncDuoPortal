@@ -56,7 +56,7 @@ const timer = useGlobalTimerStore();
 const systemInfo:Ref<SystemInfo> = ref(createEmptySystemInfo());
 // 请求 systemInfoResponse 数据的函数
 const getSystemInfoFunc = async () => {
-  const systemInfoTmp = await captureAndLog(getSystemInfo)();
+  const systemInfoTmp = await captureAndLog(() => getSystemInfo());
   if (systemInfoTmp === null || systemInfoTmp === undefined) {
     systemInfo.value = createEmptySystemInfo();
     return;

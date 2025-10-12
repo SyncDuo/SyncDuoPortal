@@ -120,35 +120,24 @@ export async function getSnapshotFileInfo(backupJobId:string, path:string):Promi
     return response.data.data;
 }
 
-export async function downloadSnapshotFile(snapshotFileInfo:SnapshotFileInfo): Promise<AxiosResponse<Blob>> {
-    // 发起请求
-    return await blobAxiosInstance.post<Blob>(
-        snapshotsUrl + "/download-snapshot-file",
-        snapshotFileInfo,
-        {
-            timeout: 20 * 1000,
-            responseType: "blob"
-        });
+export async function submitDownloadJob(snapshotFileInfoList:[SnapshotFileInfo]):Promise<string> {
+    const response = await restAxiosInstance.post<
+        SyncDuoHttpResponse<string>>(
+        snapshotsUrl + "/submit-download-job",
+        snapshotFileInfoList
+    );
+    return response.data.data;
 }
 
-export async function downloadSnapshotFiles(snapshotFileInfoList:SnapshotFileInfo[]): Promise<AxiosResponse<Blob>> {
-    // 发起请求
-    return  await blobAxiosInstance.post<Blob>(
-        snapshotsUrl + "/download-snapshot-files",
-        snapshotFileInfoList,
+export async function getDownloadFiles(downloadJobId:string, isPreview:boolean):Promise<AxiosResponse<Blob>> {
+    return await blobAxiosInstance.get<Blob>(
+        snapshotsUrl + "/get-download-files",
         {
-            timeout: 20 * 1000,
+            params: {
+                restoreJobId: downloadJobId,
+                isPreview: isPreview
+            },
             responseType: "blob"
-        });
-}
-
-export async function previewFile(snapshotFileInfo:SnapshotFileInfo): Promise<AxiosResponse<Blob>> {
-    // 发起请求
-    return await blobAxiosInstance.post<Blob>(
-        snapshotsUrl + "/preview-file",
-        snapshotFileInfo,
-        {
-            timeout: 20 * 1000,
-            responseType: "blob"
-        });
+        }
+    )
 }

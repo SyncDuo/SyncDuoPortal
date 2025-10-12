@@ -1,4 +1,4 @@
-export function captureAndLog<T>(func: () => Promise<T>): () => Promise<T | null> {
+export function captureAndLogOld<T>(func: () => Promise<T>): () => Promise<T | null> {
     return async function(): Promise<T | null> {
         try {
             return await func();
@@ -11,4 +11,8 @@ export function captureAndLog<T>(func: () => Promise<T>): () => Promise<T | null
             return null;
         }
     };
+}
+
+export function captureAndLog<T>(func: () => Promise<T>): Promise<T | null> {
+    return captureAndLogOld(func)();
 }

@@ -54,7 +54,7 @@ const activeTab:Ref<string> = ref("basic");
 const syncFlowInfo: Ref<SyncFlowInfo> = ref(createEmptySyncFlowInfo());
 // 获取 syncflow info 的函数
 const getSyncFlowInfoFunc = async (syncFlowId:string) => {
-  const syncFlowInfoTmp = await captureAndLog(async () => {return await getSyncFlowInfo(syncFlowId)})();
+  const syncFlowInfoTmp = await captureAndLog(() => getSyncFlowInfo(syncFlowId));
   if (syncFlowInfoTmp === null || syncFlowInfoTmp === undefined) {
     return;
   }
@@ -67,10 +67,10 @@ const emit = defineEmits<{
 // modal 正确关闭的事件逻辑
 const handleOk = async () => {
   // 发起更新过滤条件的请求
-  await captureAndLog(async () => await updateFilterCriteria({
+  await captureAndLog(() => updateFilterCriteria({
     syncFlowId: syncFlowInfo.value.syncFlowId,
-    filterCriteria: syncFlowInfo.value.filterCriteria,
-  }))();
+    filterCriteria: syncFlowInfo.value.filterCriteria
+  }));
   isModalVisible.value = false;
   syncFlowInfo.value = createEmptySyncFlowInfo();
   emit('syncFlowUpdated');
