@@ -62,6 +62,12 @@ export async function updateFilterCriteria(payload: UpdateFilterCriteriaRequest)
     );
 }
 
+export async function getPendingSourceFolder():Promise<string[]> {
+    const response = await restAxiosInstance.get<SyncDuoHttpResponse<string[]>>(
+        syncFlowUrl + "/get-pending-source-folder");
+    return response.data.data;
+}
+
 export async function getHostName():Promise<string> {
     const response = await restAxiosInstance.get<SyncDuoHttpResponse<string>>(
         fileSystemUrl + "/get-hostname");

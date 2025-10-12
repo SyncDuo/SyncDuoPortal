@@ -1,6 +1,7 @@
 <template>
   <a-auto-complete
       v-model:value="input"
+      v-model:disabled="disabled"
       :options="options"
       @search="onSearch"
   />
@@ -33,7 +34,8 @@ const searchFolder = async (searchText: string) => {
   options.value = result;
 };
 // 定义用户的输入
-const input = defineModel();
+const input = defineModel<string>('input');
+const disabled = defineModel<boolean>('disabled', {default: false});
 // 根据用户的输入搜索文件夹, 并改变联想的内容
 const onSearch = (searchText: string) => {
   if (!searchText) {
