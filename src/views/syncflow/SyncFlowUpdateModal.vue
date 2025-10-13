@@ -6,6 +6,7 @@
       @cancel="handleCancel"
       @close="handleCancel"
       width="1000px"
+      :destroyOnClose="true"
   >
     <a-tabs v-model:value="activeTab" type="card">
       <a-tab-pane key="basic" tab="Basic">

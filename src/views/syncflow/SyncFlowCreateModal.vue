@@ -89,11 +89,6 @@ const form:Ref<CreateSyncFlowRequest> = ref(initCreateSyncFlowRequest());
 const emit = defineEmits<{
   syncFlowCreated: [];
 }>();
-// 提交数据的函数
-const createSyncFlow = async (payload:CreateSyncFlowRequest) => {
-  await captureAndLog(() => addSyncFlow(payload));
-  emit('syncFlowCreated');
-};
 // 获取 pending source folder
 const getPendingSourceFolderOptions = async () => {
   const response = await captureAndLog(() => getPendingSourceFolder());
@@ -109,15 +104,15 @@ const getPendingSourceFolderOptions = async () => {
   })
 };
 // modal 正确关闭的事件逻辑
-const handleOk = () => {
+const handleOk = async () => {
   // 拼接 destFolderFullPath
   form.value.destFolderFullPath = destParentFolderFullPath.value + "/" + destFolderName.value;
   // 发起创建 syncFlow 请求
-  createSyncFlow(form.value)
+  await captureAndLog(() => addSyncFlow(form.value));
+  emit('syncFlowCreated');
   // 清空状态
   isModalVisible.value = false;
   form.value = initCreateSyncFlowRequest();
-  emit('syncFlowCreated');
 };
 // modal 取消/关闭事件的逻辑
 const handleCancel = () => {
