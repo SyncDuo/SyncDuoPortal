@@ -44,7 +44,6 @@ export interface SyncFlowInfo {
 
 export enum SyncFlowStatus {
     SYNC = "SYNC",
-    RUNNING = "RUNNING",
     PAUSE = "PAUSE",
     RESUME = "RESUME",
     RESCAN = "RESCAN",
