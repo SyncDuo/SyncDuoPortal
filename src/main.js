@@ -4,7 +4,6 @@ import App from './App.vue'
 import {createPinia} from "pinia";
 
 const app = createApp(App).use(createPinia());
-
 app.config.errorHandler = (err, instance, info) => {
     // err: 错误对象
     // instance: 发生错误的组件实例

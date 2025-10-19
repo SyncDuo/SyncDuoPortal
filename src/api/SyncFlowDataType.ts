@@ -9,6 +9,8 @@ export interface CreateSyncFlowRequest {
     filterCriteria: string;
 
     syncFlowName: string;
+
+    syncFlowType: SyncFlowType;
 }
 
 export interface ChangeSyncFlowStatusRequest {
@@ -40,6 +42,8 @@ export interface SyncFlowInfo {
     syncStatus: SyncFlowStatus;
 
     lastSyncTimeStamp: string;
+
+    syncFlowType: SyncFlowType;
 }
 
 export enum SyncFlowStatus {
@@ -47,6 +51,13 @@ export enum SyncFlowStatus {
     PAUSE = "PAUSE",
     RESUME = "RESUME",
     RESCAN = "RESCAN",
+    BACKUP_ONLY_SYNC = "BACKUP_ONLY_SYNC",
+    UNKNOWN = "UNKNOWN",
+}
+
+export enum SyncFlowType {
+    REACTIVE_SYNC = "REACTIVE_SYNC",
+    BACKUP_ONLY = "BACKUP_ONLY",
     UNKNOWN = "UNKNOWN",
 }
 
@@ -60,5 +71,6 @@ export function createEmptySyncFlowInfo(): SyncFlowInfo {
         destFolderStats: createEmptyFolderStats(),
         syncStatus: SyncFlowStatus.UNKNOWN,
         lastSyncTimeStamp: "",
+        syncFlowType: SyncFlowType.UNKNOWN
     }
 }

@@ -3,13 +3,20 @@
       v-model:open="isModalVisible"
       title="Add SyncFlow"
       @ok="handleOk"
-      @cancel="handleCancel"
-      @close="handleCancel"
+      @close="cleanUp"
       width="1000px"
       :destroyOnClose="true"
   >
     <a-tabs v-model:value="activeTab" type="card">
       <a-tab-pane key="basic" tab="Basic">
+        <a-form class="input-group" layout="vertical">
+          <a-form-item label="Sync Flow Type" class="form-item">
+            <a-radio-group
+                v-model:value="syncFlowType"
+                :options="[SyncFlowType.REACTIVE_SYNC, SyncFlowType.BACKUP_ONLY]"
+            />
+          </a-form-item>
+        </a-form>
         <a-form class="input-group" layout="vertical" v-if="pendingSourceFolderOptions.length > 0">
           <a-form-item label="Pending Source Folder" class="form-item">
             <a-select
@@ -27,9 +34,12 @@
           </a-form-item>
         </a-form>
         <a-form class="input-group" layout="vertical">
-          <a-form-item label="Dest Folder" class="form-item" >
+          <a-form-item label="Dest Folder" class="form-item" v-if="syncFlowType === SyncFlowType.REACTIVE_SYNC">
             <a-input-group compact>
-              <search-bar v-model:value="destParentFolderFullPath" style="width: 80%"/>
+              <search-bar
+                  v-model:value="destParentFolderFullPath"
+                  :disabled="false"
+                  style="width: 80%"/>
               <a-input v-model:value="destFolderName" style="width: 20%" />
             </a-input-group>
           </a-form-item>
@@ -41,8 +51,8 @@
         </a-form>
       </a-tab-pane>
 
-      <a-tab-pane key="advance" tab="Advance">
-        <a-form class="input-group">
+      <a-tab-pane key="advance" tab="Advance" v-if="syncFlowType === SyncFlowType.REACTIVE_SYNC">
+        <a-form class="input-group" >
           <a-form-item label="Filter Criteria" class="form-item">
             <a-input v-model:value="form.filterCriteria"/>
           </a-form-item>
@@ -55,7 +65,7 @@
 <script setup lang="ts">
 import {addSyncFlow, getPendingSourceFolder} from '../../api/Api'
 import {ref, Ref} from 'vue';
-import {CreateSyncFlowRequest} from "../../api/SyncFlowDataType";
+import {CreateSyncFlowRequest, SyncFlowType} from "../../api/SyncFlowDataType";
 import SearchBar from "../../components/SearchPathInput.vue";
 import {captureAndLog} from "../../util/ExceptionHandler";
 import {SelectProps} from "ant-design-vue";
@@ -64,6 +74,8 @@ import {SelectProps} from "ant-design-vue";
 const isModalVisible:Ref<boolean> = ref(false);
 // 活动 tab 页的变量
 const activeTab:Ref<string> = ref("basic");
+// syncflow type 选中的值和选中后处理的函数
+const syncFlowType:Ref<SyncFlowType> = ref(SyncFlowType.REACTIVE_SYNC);
 // source folder 输入框是否禁止的变量
 const sourceFolderInputDisabled:Ref<boolean> = ref(false);
 // 创建 destParentFolderFullPath 和 destFolderName, 用于最后拼接为 destFolderName
@@ -71,20 +83,14 @@ const destParentFolderFullPath:Ref<string> = ref("");
 const destFolderName:Ref<string> = ref("");
 // pending source folder
 const pendingSourceFolderOptions:Ref<SelectProps['options']> = ref([]);
-// CreateSyncFlowRequest 初始化函数
-const initCreateSyncFlowRequest = ():CreateSyncFlowRequest => {
-  // destParentFolderFullPath 和 destFolderName 也需要清空
-  destParentFolderFullPath.value = "";
-  destFolderName.value = "";
-  return {
-    sourceFolderFullPath: "",
-    destFolderFullPath: "",
-    filterCriteria: "[]",
-    syncFlowName: ""
-  }
-};
 // modal 填写的数据
-const form:Ref<CreateSyncFlowRequest> = ref(initCreateSyncFlowRequest());
+const form:Ref<CreateSyncFlowRequest> = ref({
+  sourceFolderFullPath: "",
+  destFolderFullPath: "",
+  filterCriteria: "[]",
+  syncFlowName: "",
+  syncFlowType: SyncFlowType.UNKNOWN
+});
 // syncflow 创建完成后, 发送事件
 const emit = defineEmits<{
   syncFlowCreated: [];
@@ -92,7 +98,11 @@ const emit = defineEmits<{
 // 获取 pending source folder
 const getPendingSourceFolderOptions = async () => {
   const response = await captureAndLog(() => getPendingSourceFolder());
-  if (response === null || response === undefined || response.length === 0) {
+  if (response === null || response === undefined) {
+    return;
+  }
+  if (response.length === 0) {
+    pendingSourceFolderOptions.value = [];
     return;
   }
   pendingSourceFolderOptions.value = [];
@@ -103,21 +113,36 @@ const getPendingSourceFolderOptions = async () => {
     });
   })
 };
+// modal 清空状态
+const cleanUp = () => {
+  isModalVisible.value = false;
+  syncFlowType.value = SyncFlowType.REACTIVE_SYNC;
+  sourceFolderInputDisabled.value = false;
+  destParentFolderFullPath.value = "";
+  destFolderName.value = "";
+  form.value = {
+    sourceFolderFullPath: "",
+    destFolderFullPath: "",
+    filterCriteria: "[]",
+    syncFlowName: "",
+    syncFlowType: SyncFlowType.UNKNOWN,
+  }
+};
 // modal 正确关闭的事件逻辑
 const handleOk = async () => {
-  // 拼接 destFolderFullPath
-  form.value.destFolderFullPath = destParentFolderFullPath.value + "/" + destFolderName.value;
+  if (syncFlowType.value === SyncFlowType.REACTIVE_SYNC) {
+    // 拼接 destFolderFullPath
+    form.value.destFolderFullPath = destParentFolderFullPath.value + "/" + destFolderName.value;
+  } else {
+    form.value.destFolderFullPath = form.value.sourceFolderFullPath;
+  }
+  // 赋值 syncflow type
+  form.value.syncFlowType = syncFlowType.value;
   // 发起创建 syncFlow 请求
   await captureAndLog(() => addSyncFlow(form.value));
   emit('syncFlowCreated');
   // 清空状态
-  isModalVisible.value = false;
-  form.value = initCreateSyncFlowRequest();
-};
-// modal 取消/关闭事件的逻辑
-const handleCancel = () => {
-  isModalVisible.value = false;
-  form.value = initCreateSyncFlowRequest();
+  cleanUp();
 };
 // 定义需要暴露的方法
 defineExpose({

@@ -28,6 +28,11 @@
             {{ syncFlowInfo.syncFlowId }}
           </template>
         </a-card>
+        <a-card size="small" style="text-align: left;" title="SyncFlowType">
+          <template #extra>
+            {{ syncFlowInfo.syncFlowType }}
+          </template>
+        </a-card>
         <a-card size="small" style="text-align: left;" title="SourcePath">
           <template #extra>
             <a-popover :content="syncFlowInfo.sourceFolderPath" placement="topRight">
@@ -60,7 +65,7 @@
           </template>
         </a-card>
 
-        <div class="sync_flow_info_buttons">
+        <div v-if="syncFlowInfo.syncFlowType == SyncFlowType.REACTIVE_SYNC" class="sync_flow_info_buttons">
           <a-button class="pause_button"
                     @click="changeSyncFlowStatusFunc(syncFlowInfo.syncFlowId, SyncFlowStatus.PAUSE)">
             <PauseOutlined/>
@@ -116,10 +121,11 @@
 
 <script setup lang="ts">
 import {changeAllSyncFlowStatus, changeSyncFlowStatus, getAllSyncFlowInfo} from '../../api/Api';
-import {SyncFlowInfo, SyncFlowStatus} from "../../api/SyncFlowDataType";
+import {SyncFlowInfo, SyncFlowStatus, SyncFlowType} from "../../api/SyncFlowDataType";
 import SyncFlowCreateModal from "./SyncFlowCreateModal.vue";
 import SyncFlowUpdateModal from "./SyncFlowUpdateModal.vue";
 import {
+  DeliveredProcedureOutlined,
   EditOutlined,
   FileOutlined,
   FolderOutlined,
@@ -128,7 +134,6 @@ import {
   PlayCircleOutlined,
   PlusOutlined,
   RetweetOutlined,
-  DeliveredProcedureOutlined,
 } from '@ant-design/icons-vue';
 import {onMounted, onUnmounted, Ref, ref} from 'vue';
 import {useGlobalTimerStore} from "../../store/timer";
@@ -163,6 +168,7 @@ const syncFlowUpdateModal:Ref<InstanceType<typeof SyncFlowUpdateModal | null>> =
 const handleSyncFlowAddButton = () => {
   if (syncFlowCreateModal === null || syncFlowCreateModal === undefined) {
     console.error("syncFlowCreateModal not initialized");
+    return;
   }
   syncFlowCreateModal.value.showCreateSyncflowModal();
 };

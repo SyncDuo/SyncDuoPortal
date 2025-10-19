@@ -1,6 +1,6 @@
 <template>
   <a-auto-complete
-      v-model:value="input"
+      v-model:value="value"
       v-model:disabled="disabled"
       :options="options"
       @search="onSearch"
@@ -34,14 +34,14 @@ const searchFolder = async (searchText: string) => {
   options.value = result;
 };
 // 定义用户的输入
-const input = defineModel<string>('input');
-const disabled = defineModel<boolean>('disabled', {default: false});
+const value = ref<string>('');
+const disabled = ref<boolean>(false);
 // 根据用户的输入搜索文件夹, 并改变联想的内容
-const onSearch = (searchText: string) => {
-  if (!searchText) {
+const onSearch = async (searchText: string) => {
+  if (searchText === null || searchText === undefined || searchText.length === 0) {
     options.value = [];
   } else {
-    searchFolder(searchText);
+    await searchFolder(searchText);
   }
 };
 </script>
