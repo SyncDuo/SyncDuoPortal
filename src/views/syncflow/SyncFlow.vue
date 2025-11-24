@@ -93,6 +93,13 @@
             EDIT
           </a-button>
         </div>
+        <div v-if="syncFlowInfo.syncFlowType == SyncFlowType.BACKUP_ONLY" class="sync_flow_info_buttons">
+          <a-button class="delete_button"
+                    @click="deleteSyncFlowFunc(syncFlowInfo.syncFlowId)">
+            <DeleteOutlined />
+            DELETE
+          </a-button>
+        </div>
       </a-collapse-panel>
     </a-collapse>
 
@@ -125,21 +132,21 @@
 </template>
 
 <script setup lang="ts">
-import {changeAllSyncFlowStatus, changeSyncFlowStatus, getAllSyncFlowInfo, deleteSyncFlow} from '../../api/Api';
+import {changeAllSyncFlowStatus, changeSyncFlowStatus, deleteSyncFlow, getAllSyncFlowInfo} from '../../api/Api';
 import {SyncFlowInfo, SyncFlowStatus, SyncFlowType} from "../../api/SyncFlowDataType";
 import SyncFlowCreateModal from "./SyncFlowCreateModal.vue";
 import SyncFlowUpdateModal from "./SyncFlowUpdateModal.vue";
 import {
-    DeliveredProcedureOutlined,
-    EditOutlined,
-    FileOutlined,
-    FolderOutlined,
-    HddOutlined,
-    PauseOutlined,
-    PlayCircleOutlined,
-    PlusOutlined,
-    RetweetOutlined,
-    DeleteOutlined,
+  DeleteOutlined,
+  DeliveredProcedureOutlined,
+  EditOutlined,
+  FileOutlined,
+  FolderOutlined,
+  HddOutlined,
+  PauseOutlined,
+  PlayCircleOutlined,
+  PlusOutlined,
+  RetweetOutlined,
 } from '@ant-design/icons-vue';
 import {onMounted, onUnmounted, Ref, ref} from 'vue';
 import {useGlobalTimerStore} from "../../store/timer";
