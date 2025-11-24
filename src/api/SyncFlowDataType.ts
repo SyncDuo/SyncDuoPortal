@@ -25,6 +25,10 @@ export interface UpdateFilterCriteriaRequest {
     filterCriteria: string;
 }
 
+export interface DeleteSyncFlowRequest {
+    syncFlowId : string;
+}
+
 export interface SyncFlowInfo {
 
     syncFlowId : string;

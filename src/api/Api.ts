@@ -2,7 +2,7 @@ import blobAxiosInstance, {restAxiosInstance} from "../util/Http";
 import {
     CreateSyncFlowRequest,
     ChangeSyncFlowStatusRequest,
-    SyncFlowInfo, UpdateFilterCriteriaRequest
+    SyncFlowInfo, UpdateFilterCriteriaRequest, DeleteSyncFlowRequest
 } from "./SyncFlowDataType"
 import {SystemInfo, SystemSettings} from "./SystemInfoDataType";
 import {SyncDuoHttpResponse} from "./GlobalDataType";
@@ -60,6 +60,13 @@ export async function updateFilterCriteria(payload: UpdateFilterCriteriaRequest)
         syncFlowUrl + "/update-filter-criteria",
         payload
     );
+}
+
+export async function deleteSyncFlow(payload:DeleteSyncFlowRequest) {
+    await restAxiosInstance.post<null>(
+        syncFlowUrl + "/delete-sync-flow",
+        payload
+    )
 }
 
 export async function getPendingSourceFolder():Promise<string[]> {

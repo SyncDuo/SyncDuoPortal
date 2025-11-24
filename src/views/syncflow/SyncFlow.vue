@@ -81,6 +81,11 @@
             <RetweetOutlined/>
             {{ SyncFlowStatus.RESCAN }}
           </a-button>
+          <a-button class="delete_button"
+                    @click="deleteSyncFlowFunc(syncFlowInfo.syncFlowId)">
+            <DeleteOutlined />
+            DELETE
+          </a-button>
           <a-button class="edit_button"
                     @click="handleSyncFlowEditButton(syncFlowInfo.syncFlowId)"
                     :disabled="editButtonDisable(syncFlowInfo)">
@@ -120,24 +125,26 @@
 </template>
 
 <script setup lang="ts">
-import {changeAllSyncFlowStatus, changeSyncFlowStatus, getAllSyncFlowInfo} from '../../api/Api';
+import {changeAllSyncFlowStatus, changeSyncFlowStatus, getAllSyncFlowInfo, deleteSyncFlow} from '../../api/Api';
 import {SyncFlowInfo, SyncFlowStatus, SyncFlowType} from "../../api/SyncFlowDataType";
 import SyncFlowCreateModal from "./SyncFlowCreateModal.vue";
 import SyncFlowUpdateModal from "./SyncFlowUpdateModal.vue";
 import {
-  DeliveredProcedureOutlined,
-  EditOutlined,
-  FileOutlined,
-  FolderOutlined,
-  HddOutlined,
-  PauseOutlined,
-  PlayCircleOutlined,
-  PlusOutlined,
-  RetweetOutlined,
+    DeliveredProcedureOutlined,
+    EditOutlined,
+    FileOutlined,
+    FolderOutlined,
+    HddOutlined,
+    PauseOutlined,
+    PlayCircleOutlined,
+    PlusOutlined,
+    RetweetOutlined,
+    DeleteOutlined,
 } from '@ant-design/icons-vue';
 import {onMounted, onUnmounted, Ref, ref} from 'vue';
 import {useGlobalTimerStore} from "../../store/timer";
 import {captureAndLog} from "../../util/ExceptionHandler";
+import {message} from "ant-design-vue";
 
 
 // 定时器
@@ -194,6 +201,15 @@ const changeSyncFlowStatusFunc = async (syncFlowId:string, syncFlowStatus:SyncFl
   }
   await getSyncFlowInfoListFunc();
 };
+// 删除syncflow的函数
+const deleteSyncFlowFunc = async (syncFlowId:string) => {
+  if (syncFlowId === null || syncFlowId === undefined || syncFlowId === "0") {
+    console.error("syncFlowId is null!");
+    return;
+  }
+  await captureAndLog(() => deleteSyncFlow({syncFlowId:syncFlowId}));
+  message.info("删除请求已提交, 最长15分钟后删除");
+}
 // 页面加载的时候获取 syncflow 数据渲染
 onMounted(() => {
   timer.registerJob("getSyncFlowInfoList", getSyncFlowInfoListFunc);
